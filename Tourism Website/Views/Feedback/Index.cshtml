@@ -1,0 +1,22 @@
+﻿@model IEnumerable<Tourism_Website.Models.Feedback>
+
+<h2>Feedback for @Model.FirstOrDefault()?.Tour?.Title</h2>
+
+<table border="1">
+    <tr>
+        <th>Tourist</th>
+        <th>Rating</th>
+        <th>Comments</th>
+        <th>Date</th>
+    </tr>
+
+    @foreach (var fb in Model)
+    {
+        <tr>
+            <td>@fb.User.FullName</td>
+            <td>@fb.Rating</td>
+            <td>@fb.Comments</td>
+            <td>@fb.DatePosted.ToShortDateString()</td>
+        </tr>
+    }
+</table>

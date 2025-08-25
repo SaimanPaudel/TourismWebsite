@@ -1,0 +1,18 @@
+﻿@model Tourism_Website.Models.Feedback
+
+<h2>Leave Feedback</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.HiddenFor(m => m.TourId, new { Value = ViewBag.TourId })
+
+    <label>Rating (1–5)</label>
+    @Html.TextBoxFor(m => m.Rating, new { type = "number", min = "1", max = "5", required = "required" })
+    <br />
+
+    <label>Comments</label>
+    @Html.TextAreaFor(m => m.Comments)
+    <br />
+
+    <button type="submit">Submit</button>
+}

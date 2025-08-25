@@ -1,0 +1,22 @@
+﻿@model IEnumerable<dynamic>
+
+<h2>Booking Report</h2>
+
+<table border="1">
+    <tr>
+        <th>Tour ID</th>
+        <th>Total Bookings</th>
+        <th>Completed</th>
+        <th>Pending</th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.TourId</td>
+            <td>@item.TotalBookings</td>
+            <td>@item.Completed</td>
+            <td>@item.Pending</td>
+        </tr>
+    }
+</table>
