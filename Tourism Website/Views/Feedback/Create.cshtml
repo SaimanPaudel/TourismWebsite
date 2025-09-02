@@ -1,18 +1,66 @@
 ﻿@model Tourism_Website.Models.Feedback
 
-<h2>Leave Feedback</h2>
-
-@using (Html.BeginForm())
-{
-    @Html.HiddenFor(m => m.TourId, new { Value = ViewBag.TourId })
-
-    <label>Rating (1–5)</label>
-    @Html.TextBoxFor(m => m.Rating, new { type = "number", min = "1", max = "5", required = "required" })
-    <br />
-
-    <label>Comments</label>
-    @Html.TextAreaFor(m => m.Comments)
-    <br />
-
-    <button type="submit">Submit</button>
+@{
+    ViewBag.Title = "Leave Feedback";
 }
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0 rounded-3" style="background-color: #f8f2f0;">
+                <div class="card-header text-white" style="background-color: #8e4433;">
+                    <h3 class="mb-0">Leave Your Feedback</h3>
+                </div>
+                <div class="card-body p-4">
+                    @using (Html.BeginForm())
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-group mb-3">
+                            @Html.LabelFor(m => m.UserId, "User", new { @class = "form-label fw-bold" })
+                            @Html.DropDownListFor(m => m.UserId,
+                                (SelectList)ViewBag.Users,
+                                "Select user",
+                                new { @class = "form-select" })
+                            @Html.ValidationMessageFor(m => m.UserId, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group mb-3">
+                            @Html.LabelFor(m => m.TourId, "Tour", new { @class = "form-label fw-bold" })
+                            @Html.DropDownListFor(m => m.TourId,
+                                (SelectList)ViewBag.Tours,
+                                "Select tour",
+                                new { @class = "form-select" })
+                            @Html.ValidationMessageFor(m => m.TourId, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group mb-3">
+                            @Html.LabelFor(m => m.Rating, new { @class = "form-label fw-bold" })
+                            @Html.DropDownListFor(m => m.Rating,
+                                new SelectList(Enumerable.Range(1, 5).Select(i => new { Value = i, Text = i }), "Value", "Text"),
+                                "Select rating",
+                                new { @class = "form-select" })
+                            @Html.ValidationMessageFor(m => m.Rating, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group mb-3">
+                            @Html.LabelFor(m => m.Comments, new { @class = "form-label fw-bold" })
+                            @Html.TextAreaFor(m => m.Comments, 5, 50, new { @class = "form-control", placeholder = "Write your comments here..." })
+                            @Html.ValidationMessageFor(m => m.Comments, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group mb-3">
+                            @Html.LabelFor(m => m.DatePosted, new { @class = "form-label fw-bold" })
+                            @Html.TextBoxFor(m => m.DatePosted, "{0:yyyy-MM-dd}", new { @class = "form-control", type = "date" })
+                            @Html.ValidationMessageFor(m => m.DatePosted, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-lg" style="background-color: #8e4433; color: #fff;">Submit Feedback</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

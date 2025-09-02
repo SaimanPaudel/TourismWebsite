@@ -1,9 +1,159 @@
 ﻿@{
     ViewBag.Title = "About";
 }
-<main aria-labelledby="title">
-    <h2 id="title">@ViewBag.Title.</h2>
-    <h3>@ViewBag.Message</h3>
 
-    <p>Use this area to provide additional information.</p>
-</main>
+<div class="container my-5 p-4 rounded-4" style="background-color: #f8f2f0;">
+
+    <!-- Banner Image -->
+    <div class="text-center mb-5">
+        <img src="~/Content/Images/tourism-banner.jpg" class="img-fluid rounded-4 shadow-sm" alt="Tourism Banner">
+    </div>
+
+    <!-- About Section -->
+    <div class="card shadow-sm border-0 rounded-4 mb-5" style="background-color: rgba(255,255,255,0.9);">
+        <div class="card-header text-white text-center py-3" style="background-color: #8e4433;">
+            <h2 class="mb-0">About Travel Nerds</h2>
+        </div>
+        <div class="card-body p-4">
+            <p class="lead">
+                Welcome to the <strong>Tourism Website</strong> — your ultimate guide for exploring exciting tours and travel experiences.
+            </p>
+            <p>
+                This application allows tourists to browse available tours, leave feedback, and connect with travel agencies for the best experience. Our goal is to make trip planning easy, reliable, and fun.
+            </p>
+
+            <!-- Features List with Icons -->
+            <ul class="list-group list-group-flush my-3" style="background-color: rgba(255,255,255,0);">
+                <li class="list-group-item">
+                    <i class="bi bi-bootstrap-fill me-2"></i>
+                    Built With: ASP.NET MVC & Bootstrap 5
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-stars me-2"></i>
+                    Features: Browse tours, Leave feedback, Reports, User-friendly interface
+                </li>
+                <li class="list-group-item">
+                    <i class="bi bi-person-circle me-2"></i>
+                    Developer: Nerds
+                </li>
+            </ul>
+
+            <p class="text-muted mt-3">
+                We hope you enjoy using our application and find it helpful for planning your next adventure!
+            </p>
+        </div>
+    </div>
+
+    <!-- Mission Section with Image -->
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <img src="~/Content/Images/travel-experience.jpg" class="img-fluid rounded-4 shadow-sm" alt="Travel Experience">
+        </div>
+        <div class="col-md-6">
+            <h3>Our Mission</h3>
+            <p>
+                We help travelers find unforgettable experiences, from exotic tours to local adventures, making planning easy and fun. Our team is dedicated to providing reliable information and support for every journey.
+            </p>
+        </div>
+    </div>
+
+    <!-- Tours Carousel -->
+    <h3 class="text-center mb-4" style="color: #8e4433;">Featured Tours</h3>
+    <div id="toursCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="~/Content/Images/tour1.jpg" class="d-block w-100 rounded-4 shadow-sm" alt="Tour 1">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>Beach Paradise</h5>
+                    <p>Relax on pristine beaches and soak in the sun.</p>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="~/Content/Images/tour2.jpg" class="d-block w-100 rounded-4 shadow-sm" alt="Tour 2">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>Mountain Adventure</h5>
+                    <p>Experience thrilling hikes and breathtaking views.</p>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <img src="~/Content/Images/tour3.jpg" class="d-block w-100 rounded-4 shadow-sm" alt="Tour 3">
+                <div class="carousel-caption d-none d-md-block">
+                    <h5>City Explorer</h5>
+                    <p>Discover the hidden gems of vibrant cities.</p>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#toursCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" style="background-color: #8e4433;"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#toursCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" style="background-color: #8e4433;"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+
+    <!-- Team Carousel -->
+    <h3 class="text-center mb-4" style="color: #8e4433;">Meet Our Team</h3>
+    <div id="teamCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+        <div class="carousel-inner text-center">
+            <div class="carousel-item active">
+                <img src="~/Content/Images/team-member1.jpg" class="rounded-circle mb-3 shadow-sm" style="width:150px;height:150px;" alt="Team Member">
+                <h5>Saiman Paudel</h5>
+                <p class="text-muted">Lead Developer</p>
+            </div>
+            <div class="carousel-item">
+                <img src="~/Content/Images/team-member2.jpg" class="rounded-circle mb-3 shadow-sm" style="width:150px;height:150px;" alt="Team Member">
+                <h5>Biken Maharjan</h5>
+                <p class="text-muted">UI/UX Designer</p>
+            </div>
+            <div class="carousel-item">
+                <img src="~/Content/Images/team-member3.jpg" class="rounded-circle mb-3 shadow-sm" style="width:150px;height:150px;" alt="Team Member">
+                <h5>Laxman Paudel</h5>
+                <p class="text-muted">Project Manager</p>
+            </div>
+            <div class="carousel-item">
+                <img src="~/Content/Images/team-member4.jpg" class="rounded-circle mb-3 shadow-sm" style="width:150px;height:150px;" alt="Team Member">
+                <h5>Dinesh Yadav</h5>
+                <p class="text-muted">Marketing Specialist</p>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#teamCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" style="background-color: #8e4433;"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#teamCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" style="background-color: #8e4433;"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+
+
+    <!-- Fun Facts / Stats Section -->
+    <div class="row text-center py-5 text-white" style="background-color: #8e4433; border-radius: 20px;">
+        <div class="col-md-4 mb-3">
+            <h2>50+</h2>
+            <p>Tours Available</p>
+        </div>
+        <div class="col-md-4 mb-3">
+            <h2>1000+</h2>
+            <p>Happy Tourists</p>
+        </div>
+        <div class="col-md-4 mb-3">
+            <h2>25+</h2>
+            <p>Travel Agencies</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- Optional CSS for hover effects -->
+<style>
+    .carousel-item img {
+        transition: transform 0.5s;
+    }
+
+        .carousel-item img:hover {
+            transform: scale(1.05);
+        }
+</style>

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
-using System.ComponentModel.DataAnnotations;
 
 namespace Tourism_Website.Models
 {
@@ -24,5 +25,12 @@ namespace Tourism_Website.Models
         public string Comments { get; set; }  // Feedback text
 
         public DateTime DatePosted { get; set; } = DateTime.Now;
+
+        // ✅ Navigation Properties (needed for Include)
+        [ForeignKey("UserId")]
+        public virtual User User { get; set; }
+
+        [ForeignKey("TourId")]
+        public virtual Tour Tour { get; set; }
     }
 }

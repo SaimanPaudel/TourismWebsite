@@ -1,22 +1,67 @@
 ﻿@model IEnumerable<Tourism_Website.Models.Feedback>
 
-<h2>Feedback for @Model.FirstOrDefault()?.Tour?.Title</h2>
+@{
+    ViewBag.Title = "Feedbacks";
+}
 
-<table border="1">
-    <tr>
-        <th>Tourist</th>
-        <th>Rating</th>
-        <th>Comments</th>
-        <th>Date</th>
-    </tr>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 style="color: #8e4433;">Feedbacks</h2>
+        <a href="@Url.Action("Create", "Feedback")" class="btn" style="background-color: #8e4433; color:#fff;">
+            <i class="fa fa-plus"></i> Leave Feedback
+        </a>
+    </div>
 
-    @foreach (var fb in Model)
+    @if (!Model.Any())
     {
-        <tr>
-            <td>@fb.User.FullName</td>
-            <td>@fb.Rating</td>
-            <td>@fb.Comments</td>
-            <td>@fb.DatePosted.ToShortDateString()</td>
-        </tr>
+        <div class="alert alert-info" style="background-color:#f8f2f0; color:#000;">
+            No feedback has been submitted yet. Be the first to leave one!
+        </div>
     }
-</table>
+    else
+    {
+        <div class="card shadow-sm rounded-4" style="background-color: #f8f2f0;">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead style="background-color: #8e4433; color: #fff;">
+                        <tr>
+                            <th>Tour</th>
+                            <th>User</th>
+                            <th>Rating</th>
+                            <th>Comments</th>
+                            <th>Date Posted</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr style="background-color: rgba(255,255,255,0.95);">
+                                <td>@item.Tour.Title</td>
+                                <td>@item.User.FullName</td>
+                                <td>
+                                    <span class="badge" style="background-color: #fdd835; color: #000;">
+                                        ⭐ @item.Rating
+                                    </span>
+                                </td>
+                                <td>@item.Comments</td>
+                                <td>@item.DatePosted.ToString("dd MMM yyyy")</td>
+                                <td class="text-center">
+                                    <a href="@Url.Action("Details", "Feedback", new { id=item.FeedbackId })" class="btn btn-sm" style="background-color:#8e4433; color:#fff; margin-right:5px;">
+                                        <i class="fa fa-eye"></i> View
+                                    </a>
+                                    <a href="@Url.Action("Edit", "Feedback", new { id=item.FeedbackId })" class="btn btn-sm" style="background-color:#ffc107; color:#000; margin-right:5px;">
+                                        <i class="fa fa-edit"></i> Edit
+                                    </a>
+                                    <a href="@Url.Action("Delete", "Feedback", new { id=item.FeedbackId })" class="btn btn-sm" style="background-color:#dc3545; color:#fff;">
+                                        <i class="fa fa-trash"></i> Delete
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
