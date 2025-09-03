@@ -12,6 +12,8 @@ namespace Tourism_Website.Controllers
     {
         private readonly Tourism_WebsiteContext db = new Tourism_WebsiteContext();
 
+
+
         // GET: Tour
         public ActionResult Index()
         {
