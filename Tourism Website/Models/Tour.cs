@@ -10,6 +10,8 @@ namespace Tourism_Website.Models
        
             public int TourId { get; set; }
             public string Title { get; set; }
+
+
         }
     }
 
