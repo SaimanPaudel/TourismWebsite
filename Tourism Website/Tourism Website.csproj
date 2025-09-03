@@ -118,6 +118,7 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\BookingController.cs" />
     <Compile Include="Controllers\FeedbackController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TourController.cs" />
@@ -128,6 +129,14 @@
     <Compile Include="Migrations\202509031034482_CreateTours.cs" />
     <Compile Include="Migrations\202509031034482_CreateTours.Designer.cs">
       <DependentUpon>202509031034482_CreateTours.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202509031252042_UpdateFeedbackAndTour.cs" />
+    <Compile Include="Migrations\202509031252042_UpdateFeedbackAndTour.Designer.cs">
+      <DependentUpon>202509031252042_UpdateFeedbackAndTour.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202509031334561_UpdateTourAndBooking.cs" />
+    <Compile Include="Migrations\202509031334561_UpdateTourAndBooking.Designer.cs">
+      <DependentUpon>202509031334561_UpdateTourAndBooking.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Booking.cs" />
@@ -153,6 +162,7 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\css\tours.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
@@ -198,6 +208,11 @@
     <Content Include="Views\Tour\Details.cshtml" />
     <Content Include="Views\Tour\Edit.cshtml" />
     <Content Include="Views\Tour\Index.cshtml" />
+    <Content Include="Views\Booking\Create.cshtml" />
+    <Content Include="Views\Booking\Delete.cshtml" />
+    <Content Include="Views\Booking\Details.cshtml" />
+    <Content Include="Views\Booking\Edit.cshtml" />
+    <Content Include="Views\Booking\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -232,6 +247,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202509031034482_CreateTours.resx">
       <DependentUpon>202509031034482_CreateTours.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509031252042_UpdateFeedbackAndTour.resx">
+      <DependentUpon>202509031252042_UpdateFeedbackAndTour.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509031334561_UpdateTourAndBooking.resx">
+      <DependentUpon>202509031334561_UpdateTourAndBooking.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

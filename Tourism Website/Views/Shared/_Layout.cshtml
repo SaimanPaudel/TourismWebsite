@@ -11,10 +11,19 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
+    <!-- Custom CSS -->
     @Styles.Render("~/Content/css")
+    <link rel="stylesheet" href="~/Content/css/tours.css" />
+
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
+    @* Get current controller and action for active link highlighting *@
+    @{
+        string currentController = ViewContext.RouteData.Values["controller"].ToString();
+        string currentAction = ViewContext.RouteData.Values["action"].ToString();
+    }
+
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background-color: #8e4433;">
         <div class="container">
@@ -27,28 +36,28 @@
             <div class="collapse navbar-collapse" id="topNavbar">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        @Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })
+                        @Html.ActionLink("Home", "Index", "Home", null, new { @class = "nav-link " + (currentController == "Home" && currentAction == "Index" ? "active" : "") })
                     </li>
                     <li class="nav-item">
-                        @Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })
+                        @Html.ActionLink("About", "About", "Home", null, new { @class = "nav-link " + (currentController == "Home" && currentAction == "About" ? "active" : "") })
                     </li>
                     <li class="nav-item">
-                        @Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })
+                        @Html.ActionLink("Contact", "Contact", "Home", null, new { @class = "nav-link " + (currentController == "Home" && currentAction == "Contact" ? "active" : "") })
                     </li>
-
-                    <!-- 🔹 Corrected Tour Section -->
                     <li class="nav-item">
-                        @Html.ActionLink("Tour", "Index", "Tour", new { area = "" }, new { @class = "nav-link" })
+                        @Html.ActionLink("Tours", "Index", "Tour", null, new { @class = "nav-link " + (currentController == "Tour" ? "active" : "") })
                     </li>
-
-                    <!-- 🔹 Corrected Feedback Section -->
                     <li class="nav-item">
-                        @Html.ActionLink("Feedback", "Index", "Feedback", new { area = "" }, new { @class = "nav-link" })
+                        @Html.ActionLink("TravelPackage", "Index", "TravelPackage", null, new { @class = "nav-link " + (currentController == "TravelPackage" ? "active" : "") })
                     </li>
-
-                    <!-- 🔹 Corrected Report Section -->
                     <li class="nav-item">
-                        @Html.ActionLink("Report", "Bookings", "Report", new { area = "" }, new { @class = "nav-link" })
+                        @Html.ActionLink("Booking", "Index", "Booking", null, new { @class = "nav-link " + (currentController == "Booking" ? "active" : "") })
+                    </li>
+                    <li class="nav-item">
+                        @Html.ActionLink("Feedback", "Index", "Feedback", null, new { @class = "nav-link " + (currentController == "Feedback" ? "active" : "") })
+                    </li>
+                    <li class="nav-item">
+                        @Html.ActionLink("Report", "Bookings", "Report", null, new { @class = "nav-link " + (currentController == "Report" ? "active" : "") })
                     </li>
                 </ul>
             </div>
@@ -67,6 +76,7 @@
         </div>
     </footer>
 
+    <!-- Scripts -->
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
 

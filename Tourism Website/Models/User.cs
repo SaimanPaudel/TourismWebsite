@@ -7,10 +7,7 @@ namespace Tourism_Website.Models
 {
     public class User
     {
-  
-            public int UserId { get; set; }
-            public string FullName { get; set; }
-        }
-
-
+        public int UserId { get; set; }
+        public string FullName { get; set; }
+    }
 }

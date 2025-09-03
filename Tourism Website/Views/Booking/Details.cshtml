@@ -1,0 +1,76 @@
+﻿@model Tourism_Website.Models.Booking
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Booking Details</h2>
+
+<div>
+    <h4>Booking</h4>
+    <hr />
+    <dl class="dl-horizontal">
+
+        <!-- Tour Title -->
+        <dt>
+            @Html.DisplayNameFor(model => model.Tour.Title)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Tour.Title)
+        </dd>
+
+        <!-- Tourist Name -->
+        <dt>
+            @Html.DisplayNameFor(model => model.Tourist.FullName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Tourist.FullName)
+        </dd>
+
+        <!-- Booking Date -->
+        <dt>
+            @Html.DisplayNameFor(model => model.BookingDate)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BookingDate)
+        </dd>
+
+        <!-- Number of People -->
+        <dt>
+            @Html.DisplayNameFor(model => model.NumberOfPeople)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.NumberOfPeople)
+        </dd>
+
+        <!-- Total Price -->
+        <dt>
+            @Html.DisplayNameFor(model => model.TotalPrice)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TotalPrice)
+        </dd>
+
+        <!-- Status -->
+        <dt>
+            @Html.DisplayNameFor(model => model.Status)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+
+        <!-- Special Requests -->
+        <dt>
+            @Html.DisplayNameFor(model => model.SpecialRequests)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SpecialRequests)
+        </dd>
+
+    </dl>
+</div>
+
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

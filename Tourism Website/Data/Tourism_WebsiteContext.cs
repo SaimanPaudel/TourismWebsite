@@ -24,5 +24,9 @@ namespace Tourism_Website.Data
         public System.Data.Entity.DbSet<Tourism_Website.Models.Tour> Tours { get; set; }
 
         public System.Data.Entity.DbSet<Tourism_Website.Models.User> Users { get; set; }
+
+        public System.Data.Entity.DbSet<Tourism_Website.Models.Booking> Bookings { get; set; }
+
+       
     }
 }
