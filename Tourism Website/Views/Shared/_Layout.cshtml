@@ -31,17 +31,24 @@
                     </li>
                     <li class="nav-item">
                         @Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })
-
-
                     </li>
                     <li class="nav-item">
                         @Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })
                     </li>
+
+                    <!-- 🔹 Corrected Tour Section -->
                     <li class="nav-item">
-                        @Html.ActionLink("Feedbacks", "Index", "Feedback", new { area = "" }, new { @class = "nav-link" })
+                        @Html.ActionLink("Tour", "Index", "Tour", new { area = "" }, new { @class = "nav-link" })
                     </li>
+
+                    <!-- 🔹 Corrected Feedback Section -->
                     <li class="nav-item">
-                        @Html.ActionLink("Reports", "Bookings", "Reports", new { area = "" }, new { @class = "nav-link" })
+                        @Html.ActionLink("Feedback", "Index", "Feedback", new { area = "" }, new { @class = "nav-link" })
+                    </li>
+
+                    <!-- 🔹 Corrected Report Section -->
+                    <li class="nav-item">
+                        @Html.ActionLink("Report", "Bookings", "Report", new { area = "" }, new { @class = "nav-link" })
                     </li>
                 </ul>
             </div>
