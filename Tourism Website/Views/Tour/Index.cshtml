@@ -1,105 +1,90 @@
 ﻿@model IEnumerable<Tourism_Website.Models.Tour>
 
 @{
-    ViewBag.Title = "Tour Packages";
-    Layout = "~/Views/Shared/_Layout.cshtml"; // ensure consistent layout
+    ViewBag.Title = "Tours";
 }
 
-<style>
-    body {
-        background-color: #f8f2f0;
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="color: #8e4433;">Available Tours</h2>
+        <a href="@Url.Action("Create", "Tour")" class="btn px-3 py-2" style="background-color: #8e4433; color:#fff; border-radius:10px;">
+            <i class="fa fa-plus"></i> Create New Tour
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center shadow-sm" style="background-color:#f8f2f0; color:#000; border-radius:10px;">
+            No tours have been added yet. Be the first to create one!
+        </div>
     }
+    else
+    {
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm h-100 rounded-4 tour-card" style="background-color:#f8f2f0; transition: transform 0.2s;">
+                        @if (!string.IsNullOrEmpty(item.ImagePath))
+                        {
+                            <img src="@Url.Content(item.ImagePath)" class="card-img-top" alt="@item.Title"
+                                 style="height:180px; object-fit:cover; border-top-left-radius:12px; border-top-right-radius:12px;" />
+                        }
+                        else
+                        {
+                            <div class="d-flex align-items-center justify-content-center"
+                                 style="height:180px; background:#ddd; border-top-left-radius:12px; border-top-right-radius:12px;">
+                                <span class="text-muted">No Image</span>
+                            </div>
+                        }
 
-    .card {
-        background-color: rgba(255, 255, 255, 0.9);
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title" style="color:#8e4433;">@item.Title</h5>
+                            <p class="card-text text-muted mb-2"><i class="fa fa-map-marker"></i> @item.Destination</p>
+                            <p class="card-text">
+                                @(item.Description.Length > 100 ? item.Description.Substring(0, 100) + "..." : item.Description)
+                            </p>
+                            <div class="mt-auto d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge" style="background-color:#fdd835; color:#000; font-size:14px;">
+                                        💰 $@item.Price AUD
+                                    </span>
+                                    <span class="badge bg-secondary ms-2">
+                                        ⏳ @item.DurationDays Days
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-footer bg-transparent border-0 text-center pb-3 d-flex justify-content-center flex-wrap gap-2">
+                            <a href="@Url.Action("Details", "Tour", new { id=item.Id })"
+                               class="btn btn-sm px-3" style="background-color:#8e4433; color:#fff;">
+                                <i class="fa fa-eye"></i> View
+                            </a>
+                            <a href="@Url.Action("Edit", "Tour", new { id=item.Id })"
+                               class="btn btn-sm px-3" style="background-color:#ffc107; color:#000;">
+                                <i class="fa fa-edit"></i> Edit
+                            </a>
+                            <a href="@Url.Action("Delete", "Tour", new { id=item.Id })"
+                               class="btn btn-sm px-3" style="background-color:#dc3545; color:#fff;">
+                                <i class="fa fa-trash"></i> Delete
+                            </a>
+                            <a href="@Url.Action("Create", "Bookings", new { tourId = item.Id })"
+                               class="btn btn-sm px-3" style="background-color:#28a745; color:#fff;">
+                                <i class="fa fa-calendar-check"></i> Book Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
     }
-
-    h2 {
-        color: #8e4433;
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0 10px;
-    }
-
-    th {
-        color: #8e4433;
-        font-weight: bold;
-        text-align: left;
-        padding: 10px;
-    }
-
-    td {
-        padding: 10px;
-        vertical-align: middle;
-    }
-
-    .action-links a {
-        margin-right: 8px;
-        color: #8e4433;
-        text-decoration: none;
-        font-weight: 500;
-    }
-
-        .action-links a:hover {
-            text-decoration: underline;
-        }
-</style>
-
-<div class="card">
-    <h2>Available Tour Packages</h2>
-
-    <p>
-        @Html.ActionLink("➕ Create New Package", "Create", null, new { @class = "btn btn-primary", style = "background-color:#8e4433;border:none;" })
-    </p>
-
-    <table class="table">
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.Title)</th>
-            <th>@Html.DisplayNameFor(model => model.Destination)</th>
-            <th>@Html.DisplayNameFor(model => model.Description)</th>
-            <th>@Html.DisplayNameFor(model => model.Price)</th>
-            <th>@Html.DisplayNameFor(model => model.DurationDays)</th>
-            <th>@Html.DisplayNameFor(model => model.ImagePath)</th>
-            <th>@Html.DisplayNameFor(model => model.CreatedByUserId)</th>
-            <th>@Html.DisplayNameFor(model => model.CreatedAt)</th>
-            <th></th>
-        </tr>
-
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.Title)</td>
-                <td>@Html.DisplayFor(modelItem => item.Destination)</td>
-                <td>@Html.DisplayFor(modelItem => item.Description)</td>
-                <td>@Html.DisplayFor(modelItem => item.Price)</td>
-                <td>@Html.DisplayFor(modelItem => item.DurationDays)</td>
-                <td>
-                    @if (!string.IsNullOrEmpty(item.ImagePath))
-                    {
-                        <img src="@Url.Content(item.ImagePath)" alt="Tour Image" style="max-height:80px; border-radius:8px;" />
-                    }
-                    else
-                    {
-                        <span>No image</span>
-                    }
-                </td>
-                <td>@Html.DisplayFor(modelItem => item.CreatedByUserId)</td>
-                <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
-                <td class="action-links">
-                    @Html.ActionLink("Edit", "Edit", new { id = item.Id }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.Id }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.Id })
-                </td>
-            </tr>
-        }
-    </table>
 </div>
+
+<style>
+    /* Hover effect for cards */
+    .tour-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+</style>
