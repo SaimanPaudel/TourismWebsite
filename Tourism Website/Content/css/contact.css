@@ -1,0 +1,49 @@
+﻿input.form-control, textarea.form-control {
+    border: 1px solid #ccc;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+    input.form-control:focus, textarea.form-control:focus {
+        border-color: #8e4433;
+        box-shadow: 0 0 5px rgba(142,68,51, 0.5);
+        outline: none;
+    }
+
+button.btn {
+    background-color: #8e4433;
+    color: #fff;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: background-color 0.3s, box-shadow 0.3s;
+    border: none;
+}
+
+    button.btn:hover {
+        background-color: #6b3025;
+        box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+    }
+
+@media (max-width: 576px) {
+    .row > .col-md-6, .row > .col-md-12 {
+        margin-bottom: 1rem;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+.send-message-btn {
+    background-color: #8e4433 !important;
+    color: #fff !important;
+    border: none !important;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+    .send-message-btn:hover {
+        background-color: green !important;
+        box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+        color: #fff !important;
+    }
+
+    .send-message-btn i {
+        margin-right: 6px;
+    }

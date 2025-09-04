@@ -1,7 +1,7 @@
 ﻿@{
     ViewBag.Title = "Contact";
 }
-
+<link rel="stylesheet" href="~/Content/contact/css/contact.css" />
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
@@ -10,10 +10,15 @@
                     <h2 class="mb-0">Contact Us</h2>
                 </div>
                 <div class="card-body p-4">
+                    @if (TempData["ThankYouMessage"] != null)
+                    {
+                        <div class="alert alert-success text-center" role="alert" style="border-radius:8px;">
+                            @TempData["ThankYouMessage"]
+                        </div>
+                    }
                     <p class="lead">
                         We'd love to hear from you! Whether you have questions, feedback, or need assistance, feel free to reach out.
                     </p>
-
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="card border-0 shadow-sm rounded-3 p-3 h-100" style="background-color: rgba(255,255,255,0.9);">
@@ -34,23 +39,27 @@
                             </div>
                         </div>
                     </div>
-
-                    <form>
+                    @using (Html.BeginForm("Contact", "Home", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
                         <div class="mb-3">
                             <label for="name" class="form-label">Your Name</label>
-                            <input type="text" class="form-control rounded-3" id="name" placeholder="Enter your name">
+                            <input type="text" class="form-control rounded-3" id="name" name="name" placeholder="Enter your name" required />
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
-                            <input type="email" class="form-control rounded-3" id="email" placeholder="Enter your email">
+                            <input type="email" class="form-control rounded-3" id="email" name="email" placeholder="Enter your email" required />
                         </div>
                         <div class="mb-3">
                             <label for="message" class="form-label">Message</label>
-                            <textarea class="form-control rounded-3" id="message" rows="5" placeholder="Write your message"></textarea>
+                            <textarea class="form-control rounded-3" id="message" name="message" rows="5" placeholder="Write your message" required></textarea>
                         </div>
-                        <button type="submit" class="btn rounded-3 px-4" style="background-color: #8e4433; color: #fff;">Send Message</button>
-                    </form>
-
+                        <div class="text-center">
+                            <button type="submit" class="btn send-message-btn rounded-3 px-4 py-2">
+                                <i class="fa fa-paper-plane"></i> Send Message
+                            </button>
+                        </div>
+                    }
                     <p class="text-muted mt-3 text-center">
                         We aim to respond within 24 hours. Thank you for contacting us!
                     </p>
