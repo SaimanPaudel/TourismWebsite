@@ -4,92 +4,95 @@
     ViewBag.Title = "Create Booking";
 }
 
-<h2>Create Booking</h2>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-@using (Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
-
-    <div class="form-horizontal">
-        <h4>Booking</h4>
-        <hr />
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-
-        <!-- Tour dropdown -->
-        <div class="form-group">
-            @Html.LabelFor(model => model.TourId, "Tour", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownListFor(model => model.TourId, (SelectList)ViewBag.Tours, "Select a Tour", new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.TourId, "", new { @class = "text-danger" })
-            </div>
+<div class="container mt-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header text-white" style="background-color:#8e4433;">
+            <h3 class="mb-0"><i class="fa fa-ticket-alt"></i> Create Booking</h3>
         </div>
+        <div class="card-body p-4">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
 
-        <!-- Tourist dropdown -->
-        <div class="form-group">
-            @Html.LabelFor(model => model.TouristId, "Tourist", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownListFor(model => model.TouristId, (SelectList)ViewBag.Tourists, "Select a Tourist", new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.TouristId, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                <!-- Tour Dropdown -->
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.TourId, "Tour", new { @class = "form-label fw-bold" })
+                    @Html.DropDownList("TourId", (SelectList)ViewBag.TourId, "-- Select Tour --", new { @class = "form-select", id = "TourId" })
+                    @Html.ValidationMessageFor(m => m.TourId, "", new { @class = "text-danger small" })
+                </div>
 
-        <!-- Booking Date -->
-        <div class="form-group">
-            @Html.LabelFor(model => model.BookingDate, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.BookingDate, new { htmlAttributes = new { @class = "form-control", type = "date" } })
-                @Html.ValidationMessageFor(model => model.BookingDate, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                <!-- Tourist Dropdown -->
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.TouristId, "Tourist", new { @class = "form-label fw-bold" })
+                    @Html.DropDownList("TouristId", (SelectList)ViewBag.TouristId, "-- Select Tourist --", new { @class = "form-select" })
+                    @Html.ValidationMessageFor(m => m.TouristId, "", new { @class = "text-danger small" })
+                </div>
 
-        <!-- Number of People -->
-        <div class="form-group">
-            @Html.LabelFor(model => model.NumberOfPeople, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.NumberOfPeople, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.NumberOfPeople, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                <!-- Number of People -->
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.NumberOfPeople, new { @class = "form-label fw-bold" })
+                    @Html.EditorFor(m => m.NumberOfPeople, new { htmlAttributes = new { @class = "form-control", id = "NumberOfPeople", placeholder = "Enter number of people" } })
+                    @Html.ValidationMessageFor(m => m.NumberOfPeople, "", new { @class = "text-danger small" })
+                </div>
 
-        <!-- Total Price -->
-        <div class="form-group">
-            @Html.LabelFor(model => model.TotalPrice, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.TotalPrice, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.TotalPrice, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                <!-- Total Price -->
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.TotalPrice, new { @class = "form-label fw-bold" })
+                    @Html.EditorFor(m => m.TotalPrice, new { htmlAttributes = new { @class = "form-control bg-light", id = "TotalPrice", @readonly = "readonly" } })
+                    <small class="text-muted">Automatically calculated</small>
+                    @Html.ValidationMessageFor(m => m.TotalPrice, "", new { @class = "text-danger small" })
+                </div>
 
-        <!-- Status -->
-        <div class="form-group">
-            @Html.LabelFor(model => model.Status, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Status, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                <!-- Status -->
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.Status, new { @class = "form-label fw-bold" })
+                    @Html.EditorFor(m => m.Status, new { htmlAttributes = new { @class = "form-control", placeholder = "e.g. Pending" } })
+                    @Html.ValidationMessageFor(m => m.Status, "", new { @class = "text-danger small" })
+                </div>
 
-        <!-- Special Requests -->
-        <div class="form-group">
-            @Html.LabelFor(model => model.SpecialRequests, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.TextAreaFor(model => model.SpecialRequests, new { @class = "form-control", rows = 3 })
-                @Html.ValidationMessageFor(model => model.SpecialRequests, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                <!-- Special Requests -->
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.SpecialRequests, new { @class = "form-label fw-bold" })
+                    @Html.TextAreaFor(m => m.SpecialRequests, new { @class = "form-control", rows = 4, placeholder = "Any special requests?" })
+                </div>
 
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10 mt-3">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="@Url.Action("Index", "Booking")" class="btn btn-outline-secondary rounded-pill px-4">
+                        <i class="fa fa-arrow-left"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-success rounded-pill px-4">
+                        <i class="fa fa-check-circle"></i> Create Booking
+                    </button>
+                </div>
+            }
         </div>
     </div>
-}
-
-<div>
-    @Html.ActionLink("Back to List", "Index")
 </div>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        var tourPrices = {};
+        @foreach (var tour in (List<Tourism_Website.Models.Tour>)ViewBag.AllTours)
+        {
+            <text>tourPrices[@tour.Id] = @tour.Price;</text>
+        }
+
+        function updatePrice() {
+            var tourId = $("#TourId").val();
+            var people = $("#NumberOfPeople").val();
+            if (tourId && people) {
+                var pricePerPerson = tourPrices[tourId] || 0;
+                $("#TotalPrice").val(pricePerPerson * people);
+            }
+        }
+
+        $("#TourId, #NumberOfPeople").on("change keyup", updatePrice);
+
+        // trigger on page load (if tour was preselected)
+        updatePrice();
+    </script>
 }
