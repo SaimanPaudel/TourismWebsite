@@ -144,6 +144,10 @@
     <Compile Include="Migrations\202509040925509_AddUserTouristAndBookingChanges.Designer.cs">
       <DependentUpon>202509040925509_AddUserTouristAndBookingChanges.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202509041243482_UpdateTouristIdType.cs" />
+    <Compile Include="Migrations\202509041243482_UpdateTouristIdType.Designer.cs">
+      <DependentUpon>202509041243482_UpdateTouristIdType.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Booking.cs" />
     <Compile Include="Models\Feedback.cs" />
@@ -272,6 +276,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202509040925509_AddUserTouristAndBookingChanges.resx">
       <DependentUpon>202509040925509_AddUserTouristAndBookingChanges.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509041243482_UpdateTouristIdType.resx">
+      <DependentUpon>202509041243482_UpdateTouristIdType.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

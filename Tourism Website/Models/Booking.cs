@@ -16,7 +16,7 @@ namespace Tourism_Website.Models
             public int TourId { get; set; }          // Link directly to Tour
 
             [Required]
-            public string TouristId { get; set; }    // Link to User
+            public int TouristId { get; set; }    // Link to User
 
             public DateTime BookingDate { get; set; } = DateTime.Now;
             public int NumberOfPeople { get; set; }

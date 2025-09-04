@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Web;
+﻿using System.Linq;
 using System.Web.Mvc;
 using System.Web.Security;
 using Tourism_Website.Data;
@@ -32,9 +30,9 @@ namespace Tourism_Website.Controllers
             var user = db.Users.FirstOrDefault(u => u.Email == email && u.Password == password);
             if (user != null)
             {
-                // Log the user in
+                // Set authentication cookie, true = persistent cookie if needed
                 FormsAuthentication.SetAuthCookie(user.Email, false);
-                return RedirectToAction("Index", "Home"); // redirect after login
+                return RedirectToAction("Index", "Home");
             }
             else
             {
@@ -43,44 +41,6 @@ namespace Tourism_Website.Controllers
             }
         }
 
-        // GET: Account/Register
-        public ActionResult Register()
-        {
-            return View();
-        }
-
-        // POST: Account/Register
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Register(RegisterViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                // Check if email already exists
-                if (db.Users.Any(u => u.Email == model.Email))
-                {
-                    ModelState.AddModelError("", "Email already registered");
-                    return View(model);
-                }
-
-                var user = new User
-                {
-                    FullName = model.FullName,
-                    Email = model.Email,
-                    Password = model.Password, // In production, hash this
-                    Role = "Tourist"
-                };
-
-                db.Users.Add(user);
-                db.SaveChanges();
-
-                return RedirectToAction("Login");
-            }
-
-            return View(model);
-        }
-
-        // GET: Account/Logout
         public ActionResult Logout()
         {
             FormsAuthentication.SignOut();
@@ -89,8 +49,7 @@ namespace Tourism_Website.Controllers
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-                db.Dispose();
+            if (disposing) db.Dispose();
             base.Dispose(disposing);
         }
     }
