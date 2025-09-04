@@ -38,10 +38,6 @@ namespace Tourism_Website.Controllers
         // GET: Booking/Create
         public ActionResult Create(int? tourId)
         {
-            ViewBag.TourId = new SelectList(db.Tours, "Id", "Title", tourId);
-            ViewBag.TouristId = new SelectList(db.Users, "Id", "FullName");
-            ViewBag.AllTours = db.Tours.ToList(); // used for JS mapping
-
             var booking = new Booking
             {
                 BookingDate = DateTime.Now,
@@ -51,25 +47,29 @@ namespace Tourism_Website.Controllers
             if (tourId != null)
             {
                 booking.TourId = tourId.Value;
-
                 var tour = db.Tours.FirstOrDefault(t => t.Id == tourId);
                 if (tour != null)
                 {
-                    booking.TotalPrice = tour.Price; // default price for 1 person
+                    booking.TotalPrice = tour.Price; // default for 1 person
                 }
             }
 
+            ViewBag.TourId = new SelectList(db.Tours, "Id", "Title", booking.TourId);
+            ViewBag.AllTours = db.Tours.ToList(); // JS price mapping
             return View(booking);
         }
 
         // POST: Booking/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,TourId,TouristId,BookingDate,NumberOfPeople,TotalPrice,Status,SpecialRequests")] Booking booking)
+        public ActionResult Create([Bind(Include = "Id,TourId,BookingDate,NumberOfPeople,TotalPrice,Status,SpecialRequests")] Booking booking)
         {
             if (ModelState.IsValid)
             {
-                // recalc price on server side
+                // Assign logged-in tourist
+                booking.TouristId = User.Identity.Name; // replace with actual user ID logic
+
+                // Calculate total price
                 var tour = db.Tours.Find(booking.TourId);
                 if (tour != null)
                 {
@@ -78,13 +78,11 @@ namespace Tourism_Website.Controllers
 
                 db.Bookings.Add(booking);
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index"); // or "ThankYou" page
             }
 
             ViewBag.TourId = new SelectList(db.Tours, "Id", "Title", booking.TourId);
-            ViewBag.TouristId = new SelectList(db.Users, "Id", "FullName", booking.TouristId);
             ViewBag.AllTours = db.Tours.ToList();
-
             return View(booking);
         }
 
@@ -99,31 +97,22 @@ namespace Tourism_Website.Controllers
                 return HttpNotFound();
 
             ViewBag.TourId = new SelectList(db.Tours, "Id", "Title", booking.TourId);
-            ViewBag.TouristId = new SelectList(db.Users, "Id", "FullName", booking.TouristId);
             return View(booking);
         }
 
         // POST: Booking/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,TourId,TouristId,BookingDate,NumberOfPeople,TotalPrice,Status,SpecialRequests")] Booking booking)
+        public ActionResult Edit([Bind(Include = "Id,TourId,BookingDate,NumberOfPeople,TotalPrice,Status,SpecialRequests")] Booking booking)
         {
             if (ModelState.IsValid)
             {
-                // ensure price recalculation on edit
-                var tour = db.Tours.Find(booking.TourId);
-                if (tour != null)
-                {
-                    booking.TotalPrice = tour.Price * booking.NumberOfPeople;
-                }
-
                 db.Entry(booking).State = EntityState.Modified;
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
             ViewBag.TourId = new SelectList(db.Tours, "Id", "Title", booking.TourId);
-            ViewBag.TouristId = new SelectList(db.Users, "Id", "FullName", booking.TouristId);
             return View(booking);
         }
 

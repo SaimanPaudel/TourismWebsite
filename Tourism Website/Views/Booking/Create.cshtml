@@ -1,73 +1,47 @@
 ﻿@model Tourism_Website.Models.Booking
 
 @{
-    ViewBag.Title = "Create Booking";
+    ViewBag.Title = "Book a Tour";
 }
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
 <div class="container mt-5">
-    <div class="card shadow-lg border-0 rounded-4">
-        <div class="card-header text-white" style="background-color:#8e4433;">
-            <h3 class="mb-0"><i class="fa fa-ticket-alt"></i> Create Booking</h3>
-        </div>
-        <div class="card-body p-4">
-            @using (Html.BeginForm())
-            {
-                @Html.AntiForgeryToken()
+    <div class="card shadow-sm p-4">
+        <h2 class="text-center mb-4" style="color:#8e4433;">Book Your Tour</h2>
 
-                <!-- Tour Dropdown -->
-                <div class="mb-3">
-                    @Html.LabelFor(m => m.TourId, "Tour", new { @class = "form-label fw-bold" })
-                    @Html.DropDownList("TourId", (SelectList)ViewBag.TourId, "-- Select Tour --", new { @class = "form-select", id = "TourId" })
-                    @Html.ValidationMessageFor(m => m.TourId, "", new { @class = "text-danger small" })
-                </div>
+        @using (Html.BeginForm())
+        {
+            @Html.AntiForgeryToken()
 
-                <!-- Tourist Dropdown -->
-                <div class="mb-3">
-                    @Html.LabelFor(m => m.TouristId, "Tourist", new { @class = "form-label fw-bold" })
-                    @Html.DropDownList("TouristId", (SelectList)ViewBag.TouristId, "-- Select Tourist --", new { @class = "form-select" })
-                    @Html.ValidationMessageFor(m => m.TouristId, "", new { @class = "text-danger small" })
-                </div>
+            <!-- Tour Dropdown -->
+            <div class="mb-3">
+                @Html.LabelFor(m => m.TourId, "Tour", new { @class = "form-label" })
+                @Html.DropDownList("TourId", (SelectList)ViewBag.TourId, "-- Select Tour --", new { @class = "form-select", id = "TourId" })
+                @Html.ValidationMessageFor(m => m.TourId, "", new { @class = "text-danger" })
+            </div>
 
-                <!-- Number of People -->
-                <div class="mb-3">
-                    @Html.LabelFor(m => m.NumberOfPeople, new { @class = "form-label fw-bold" })
-                    @Html.EditorFor(m => m.NumberOfPeople, new { htmlAttributes = new { @class = "form-control", id = "NumberOfPeople", placeholder = "Enter number of people" } })
-                    @Html.ValidationMessageFor(m => m.NumberOfPeople, "", new { @class = "text-danger small" })
-                </div>
+            <!-- Number of People -->
+            <div class="mb-3">
+                @Html.LabelFor(m => m.NumberOfPeople, "Number of People", new { @class = "form-label" })
+                @Html.EditorFor(m => m.NumberOfPeople, new { htmlAttributes = new { @class = "form-control", id = "NumberOfPeople", min = "1" } })
+                @Html.ValidationMessageFor(m => m.NumberOfPeople, "", new { @class = "text-danger" })
+            </div>
 
-                <!-- Total Price -->
-                <div class="mb-3">
-                    @Html.LabelFor(m => m.TotalPrice, new { @class = "form-label fw-bold" })
-                    @Html.EditorFor(m => m.TotalPrice, new { htmlAttributes = new { @class = "form-control bg-light", id = "TotalPrice", @readonly = "readonly" } })
-                    <small class="text-muted">Automatically calculated</small>
-                    @Html.ValidationMessageFor(m => m.TotalPrice, "", new { @class = "text-danger small" })
-                </div>
+            <!-- Total Price -->
+            <div class="mb-3">
+                @Html.LabelFor(m => m.TotalPrice, "Total Price", new { @class = "form-label" })
+                @Html.EditorFor(m => m.TotalPrice, new { htmlAttributes = new { @class = "form-control", id = "TotalPrice", @readonly = "readonly" } })
+            </div>
 
-                <!-- Status -->
-                <div class="mb-3">
-                    @Html.LabelFor(m => m.Status, new { @class = "form-label fw-bold" })
-                    @Html.EditorFor(m => m.Status, new { htmlAttributes = new { @class = "form-control", placeholder = "e.g. Pending" } })
-                    @Html.ValidationMessageFor(m => m.Status, "", new { @class = "text-danger small" })
-                </div>
+            <!-- Special Requests -->
+            <div class="mb-3">
+                @Html.LabelFor(m => m.SpecialRequests, "Special Requests", new { @class = "form-label" })
+                @Html.TextAreaFor(m => m.SpecialRequests, new { @class = "form-control", rows = 3 })
+            </div>
 
-                <!-- Special Requests -->
-                <div class="mb-3">
-                    @Html.LabelFor(m => m.SpecialRequests, new { @class = "form-label fw-bold" })
-                    @Html.TextAreaFor(m => m.SpecialRequests, new { @class = "form-control", rows = 4, placeholder = "Any special requests?" })
-                </div>
-
-                <div class="d-flex justify-content-between mt-4">
-                    <a href="@Url.Action("Index", "Booking")" class="btn btn-outline-secondary rounded-pill px-4">
-                        <i class="fa fa-arrow-left"></i> Cancel
-                    </a>
-                    <button type="submit" class="btn btn-success rounded-pill px-4">
-                        <i class="fa fa-check-circle"></i> Create Booking
-                    </button>
-                </div>
-            }
-        </div>
+            <div class="text-center">
+                <input type="submit" value="Book Now" class="btn btn-success px-4 py-2" />
+            </div>
+        }
     </div>
 </div>
 
@@ -75,6 +49,7 @@
     @Scripts.Render("~/bundles/jqueryval")
 
     <script>
+        // Map tour prices for JS calculation
         var tourPrices = {};
         @foreach (var tour in (List<Tourism_Website.Models.Tour>)ViewBag.AllTours)
         {
@@ -92,7 +67,7 @@
 
         $("#TourId, #NumberOfPeople").on("change keyup", updatePrice);
 
-        // trigger on page load (if tour was preselected)
+        // Initialize price if tour preselected
         updatePrice();
     </script>
 }

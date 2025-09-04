@@ -23,34 +23,69 @@
 ------------------- */
     .tour-section .btn,
     .create-btn {
-        background-color: #8e4433;
-        color: #fff;
         border-radius: 8px;
         padding: 6px 12px;
         font-weight: 500;
         transition: background-color 0.3s, transform 0.2s;
+        color: #fff;
+        border: none;
     }
 
-        .tour-section .btn:hover,
-        .create-btn:hover {
-            background-color: #6c3524;
+    /* Default buttons (View / Edit) */
+    .tour-section .btn {
+        background-color: #8e4433; /* brown for default */
+    }
+
+        .tour-section .btn:hover {
             transform: translateY(-2px);
         }
 
         /* Delete Button */
-        .tour-section .btn.delete-btn:hover {
-            background-color: #b02a37;
+        .tour-section .btn.delete-btn {
+            background-color: #dc3545; /* red */
         }
 
+            .tour-section .btn.delete-btn:hover {
+                background-color: #b02a37;
+            }
+
         /* Book Now Button */
-        .tour-section .btn.book-btn:hover {
-            background-color: #28a745;
+        .tour-section .btn.book-btn {
+            background-color: #198754; /* green */
         }
+
+            .tour-section .btn.book-btn:hover {
+                background-color: #146c43;
+            }
+
+        /* Edit Button */
+        .tour-section .btn.edit-btn {
+            background-color: #0d6efd; /* blue */
+        }
+
+            .tour-section .btn.edit-btn:hover {
+                background-color: #084298;
+            }
+
+        /* View Button */
+        .tour-section .btn.view-btn {
+            background-color: #343a40; /* dark */
+        }
+
+            .tour-section .btn.view-btn:hover {
+                background-color: #23272b;
+            }
 
 /* Create New Tour Button */
 .create-btn {
+    background-color: #8e4433;
     padding: 8px 16px;
 }
+
+    .create-btn:hover {
+        background-color: #6c3524;
+        transform: translateY(-2px);
+    }
 
 /* -------------------
    Responsive
