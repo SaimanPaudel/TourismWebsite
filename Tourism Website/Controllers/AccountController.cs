@@ -77,6 +77,7 @@ namespace Tourism_Website.Controllers
             var user = db.Users.FirstOrDefault(u => u.Email == email && u.Password == password);
             if (user != null)
             {
+
                 FormsAuthentication.SetAuthCookie(user.Email, false);
                 return RedirectToAction("Index", "Home");
             }
