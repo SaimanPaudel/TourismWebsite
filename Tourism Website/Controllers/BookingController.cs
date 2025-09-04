@@ -54,8 +54,7 @@ namespace Tourism_Website.Controllers
             }
 
             ViewBag.TourId = new SelectList(db.Tours, "Id", "Title", booking.TourId);
-            ViewBag.TouristId = new SelectList(db.Users, "UserId", "FullName"); // <-- added
-            ViewBag.AllTours = db.Tours.ToList();
+            ViewBag.AllTours = db.Tours.ToList();  // Populate for script in view
             return View(booking);
         }
 
@@ -76,8 +75,7 @@ namespace Tourism_Website.Controllers
             }
 
             ViewBag.TourId = new SelectList(db.Tours, "Id", "Title", booking.TourId);
-            ViewBag.TouristId = new SelectList(db.Users, "UserId", "FullName", booking.TouristId);
-            ViewBag.AllTours = db.Tours.ToList();
+            ViewBag.AllTours = db.Tours.ToList();  // Repopulate on validation error
             return View(booking);
         }
 
@@ -92,13 +90,14 @@ namespace Tourism_Website.Controllers
                 return HttpNotFound();
 
             ViewBag.TourId = new SelectList(db.Tours, "Id", "Title", booking.TourId);
+            ViewBag.TouristId = new SelectList(db.Users, "UserId", "FullName", booking.TouristId);
             return View(booking);
         }
 
         // POST: Booking/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,TourId,BookingDate,NumberOfPeople,TotalPrice,Status,SpecialRequests")] Booking booking)
+        public ActionResult Edit([Bind(Include = "Id,TourId,TouristId,BookingDate,NumberOfPeople,TotalPrice,Status,SpecialRequests")] Booking booking)
         {
             if (ModelState.IsValid)
             {
@@ -108,6 +107,7 @@ namespace Tourism_Website.Controllers
             }
 
             ViewBag.TourId = new SelectList(db.Tours, "Id", "Title", booking.TourId);
+            ViewBag.TouristId = new SelectList(db.Users, "UserId", "FullName", booking.TouristId);
             return View(booking);
         }
 
