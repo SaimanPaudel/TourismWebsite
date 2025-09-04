@@ -4,6 +4,8 @@
     ViewBag.Title = "Leave Feedback";
 }
 
+<link rel="stylesheet" href="~/Content/booking.css" /> <!-- optional: reuse Booking CSS -->
+
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -16,33 +18,37 @@
                     {
                         @Html.AntiForgeryToken()
 
+                        <!-- User Dropdown -->
                         <div class="form-group mb-3">
-                            @Html.LabelFor(m => m.UserId, "User", new { @class = "form-label fw-bold" })
+                            @Html.LabelFor(m => m.UserId, "Tourist", new { @class = "form-label fw-bold" })
                             @Html.DropDownListFor(m => m.UserId,
                                 (SelectList)ViewBag.UserId,
-                                "Select user",
+                                "Select Tourist",
                                 new { @class = "form-select" })
                             @Html.ValidationMessageFor(m => m.UserId, "", new { @class = "text-danger" })
                         </div>
 
+                        <!-- Tour Dropdown -->
                         <div class="form-group mb-3">
                             @Html.LabelFor(m => m.TourId, "Tour", new { @class = "form-label fw-bold" })
                             @Html.DropDownListFor(m => m.TourId,
                                 (SelectList)ViewBag.TourId,
-                                "Select tour",
+                                "Select Tour",
                                 new { @class = "form-select" })
                             @Html.ValidationMessageFor(m => m.TourId, "", new { @class = "text-danger" })
                         </div>
 
+                        <!-- Rating Dropdown -->
                         <div class="form-group mb-3">
                             @Html.LabelFor(m => m.Rating, new { @class = "form-label fw-bold" })
                             @Html.DropDownListFor(m => m.Rating,
                                 new SelectList(Enumerable.Range(1, 5).Select(i => new { Value = i, Text = i }), "Value", "Text"),
-                                "Select rating",
+                                "Select Rating",
                                 new { @class = "form-select" })
                             @Html.ValidationMessageFor(m => m.Rating, "", new { @class = "text-danger" })
                         </div>
 
+                        <!-- Comments -->
                         <div class="form-group mb-3">
                             @Html.LabelFor(m => m.Comments, new { @class = "form-label fw-bold" })
                             @Html.TextAreaFor(m => m.Comments, 5, 50, new { @class = "form-control", placeholder = "Write your comments here..." })
@@ -50,7 +56,9 @@
                         </div>
 
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-lg" style="background-color: #8e4433; color: #fff;">Submit Feedback</button>
+                            <button type="submit" class="btn btn-lg" style="background-color: #8e4433; color: #fff;">
+                                Submit Feedback
+                            </button>
                         </div>
                     }
                 </div>

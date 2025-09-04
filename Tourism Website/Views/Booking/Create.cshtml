@@ -49,7 +49,6 @@
     @Scripts.Render("~/bundles/jqueryval")
 
     <script>
-        // Map tour prices for JS calculation
         var tourPrices = {};
         @foreach (var tour in (List<Tourism_Website.Models.Tour>)ViewBag.AllTours)
         {
@@ -60,14 +59,11 @@
             var tourId = $("#TourId").val();
             var people = $("#NumberOfPeople").val();
             if (tourId && people) {
-                var pricePerPerson = tourPrices[tourId] || 0;
-                $("#TotalPrice").val(pricePerPerson * people);
+                $("#TotalPrice").val(tourPrices[tourId] * people);
             }
         }
 
         $("#TourId, #NumberOfPeople").on("change keyup", updatePrice);
-
-        // Initialize price if tour preselected
         updatePrice();
     </script>
 }

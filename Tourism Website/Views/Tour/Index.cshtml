@@ -60,12 +60,58 @@
                         <a href="@Url.Action("Delete", "Tour", new { id=item.Id })" class="btn delete-btn">
                             <i class="fa fa-trash"></i> Delete
                         </a>
-                        <a href="@Url.Action("Create", "Booking", new { tourId=item.Id })" class="btn book-btn">
-                            <i class="fa fa-ticket-alt"></i> Book Now
-                        </a>
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <a href="@Url.Action("Create", "Booking", new { tourId=item.Id })" class="btn book-btn">
+                                <i class="fa fa-ticket-alt"></i> Book Now
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("Login", "Account")" class="btn login-book-btn">
+                                <i class="fa fa-sign-in-alt"></i> Login to Book
+                            </a>
+                        }
                     </div>
                 </div>
             </div>
         }
     }
 </div>
+
+<style>
+    /* Force all buttons to start brown */
+    .btn {
+        background-color: #8e4433 !important;
+        color: #fff !important;
+        border: none !important;
+        transition: background-color 0.3s;
+    }
+
+    /* Hover styles */
+    .view-btn:hover {
+        background-color: grey !important;
+    }
+
+    .edit-btn:hover {
+        background-color: blue !important;
+    }
+
+    .delete-btn:hover {
+        background-color: red !important;
+    }
+
+    .book-btn:hover, .create-btn:hover {
+        background-color: #6b3025 !important; /* darker brown */
+    }
+
+    .login-book-btn:hover {
+        background-color: green !important;
+    }
+
+    /* Optional: icon spacing */
+    .btn i {
+        margin-right: 5px;
+    }
+</style>

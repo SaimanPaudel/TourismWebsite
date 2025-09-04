@@ -1,0 +1,60 @@
+﻿
+    .booking-card
+
+{
+    display: flex;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    background-color: #fff;
+    gap: 0;
+}
+
+.tour-image {
+    flex: 1;
+    min-width: 250px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+    .tour-image .overlay {
+        background-color: rgba(0,0,0,0.4);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+    }
+
+        .tour-image .overlay h3 {
+            font-size: 1.5rem;
+        }
+
+.booking-form {
+    flex: 1;
+}
+
+    .booking-form .form-control {
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    .booking-form button.btn {
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+    }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .booking-card {
+        flex-direction: column;
+    }
+
+    .tour-image {
+        height: 200px;
+    }
+}
+
+

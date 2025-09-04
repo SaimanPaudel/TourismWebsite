@@ -118,10 +118,12 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\BookingController.cs" />
     <Compile Include="Controllers\FeedbackController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TourController.cs" />
+    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Data\Tourism_WebsiteContext.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -138,9 +140,15 @@
     <Compile Include="Migrations\202509031334561_UpdateTourAndBooking.Designer.cs">
       <DependentUpon>202509031334561_UpdateTourAndBooking.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202509040925509_AddUserTouristAndBookingChanges.cs" />
+    <Compile Include="Migrations\202509040925509_AddUserTouristAndBookingChanges.Designer.cs">
+      <DependentUpon>202509040925509_AddUserTouristAndBookingChanges.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Booking.cs" />
     <Compile Include="Models\Feedback.cs" />
+    <Compile Include="Models\LoginViewModel.cs" />
+    <Compile Include="Models\RegisterViewModel.cs" />
     <Compile Include="Models\Tour.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -162,6 +170,7 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\css\booking.css" />
     <Content Include="Content\css\tours.css" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
@@ -213,6 +222,13 @@
     <Content Include="Views\Booking\Details.cshtml" />
     <Content Include="Views\Booking\Edit.cshtml" />
     <Content Include="Views\Booking\Index.cshtml" />
+    <Content Include="Views\User\Create.cshtml" />
+    <Content Include="Views\User\Delete.cshtml" />
+    <Content Include="Views\User\Details.cshtml" />
+    <Content Include="Views\User\Edit.cshtml" />
+    <Content Include="Views\User\Index.cshtml" />
+    <Content Include="Views\Account\Login.cshtml" />
+    <Content Include="Views\Account\Register.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -253,6 +269,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202509031334561_UpdateTourAndBooking.resx">
       <DependentUpon>202509031334561_UpdateTourAndBooking.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509040925509_AddUserTouristAndBookingChanges.resx">
+      <DependentUpon>202509040925509_AddUserTouristAndBookingChanges.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
