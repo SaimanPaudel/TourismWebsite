@@ -4,6 +4,16 @@ namespace Tourism_Website.Controllers
 {
     public class HomeController : Controller
     {
+        public ActionResult TestSession()
+        {
+            var userRole = Session["UserRole"] as string ?? "Not set";
+            var userId = Session["UserId"]?.ToString() ?? "Not set";
+
+            ViewBag.UserRole = userRole;
+            ViewBag.UserId = userId;
+
+            return View();
+        }
         public ActionResult Index()
         {
             return View();
@@ -41,3 +51,5 @@ namespace Tourism_Website.Controllers
         }
     }
 }
+
+

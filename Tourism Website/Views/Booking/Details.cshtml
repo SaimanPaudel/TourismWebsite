@@ -1,7 +1,6 @@
 ﻿@model Tourism_Website.Models.Booking
-
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = "Booking Details";
 }
 
 <h2>Booking Details</h2>
@@ -10,67 +9,30 @@
     <h4>Booking</h4>
     <hr />
     <dl class="dl-horizontal">
+        <dt>@Html.DisplayNameFor(model => model.Tour.Title)</dt>
+        <dd>@Html.DisplayFor(model => model.Tour.Title)</dd>
 
-        <!-- Tour Title -->
-        <dt>
-            @Html.DisplayNameFor(model => model.Tour.Title)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Tour.Title)
-        </dd>
+        <dt>@Html.DisplayNameFor(model => model.Tourist.FullName)</dt>
+        <dd>@Html.DisplayFor(model => model.Tourist.FullName)</dd>
 
-        <!-- Tourist Name -->
-        <dt>
-            @Html.DisplayNameFor(model => model.Tourist.FullName)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Tourist.FullName)
-        </dd>
+        <dt>@Html.DisplayNameFor(model => model.BookingDate)</dt>
+        <dd>@Html.DisplayFor(model => model.BookingDate)</dd>
 
-        <!-- Booking Date -->
-        <dt>
-            @Html.DisplayNameFor(model => model.BookingDate)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.BookingDate)
-        </dd>
+        <dt>@Html.DisplayNameFor(model => model.NumberOfPeople)</dt>
+        <dd>@Html.DisplayFor(model => model.NumberOfPeople)</dd>
 
-        <!-- Number of People -->
-        <dt>
-            @Html.DisplayNameFor(model => model.NumberOfPeople)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.NumberOfPeople)
-        </dd>
+        <dt>@Html.DisplayNameFor(model => model.TotalPrice)</dt>
+        <dd>@String.Format("{0:C}", Model.TotalPrice)</dd>
 
-        <!-- Total Price -->
-        <dt>
-            @Html.DisplayNameFor(model => model.TotalPrice)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.TotalPrice)
-        </dd>
+        <dt>@Html.DisplayNameFor(model => model.Status)</dt>
+        <dd>@Html.DisplayFor(model => model.Status)</dd>
 
-        <!-- Status -->
-        <dt>
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-
-        <!-- Special Requests -->
-        <dt>
-            @Html.DisplayNameFor(model => model.SpecialRequests)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.SpecialRequests)
-        </dd>
-
+        <dt>@Html.DisplayNameFor(model => model.SpecialRequests)</dt>
+        <dd>@Html.DisplayFor(model => model.SpecialRequests)</dd>
     </dl>
 </div>
 
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }, new { @class = "btn btn-primary me-2" })
+    @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-secondary" })
 </p>

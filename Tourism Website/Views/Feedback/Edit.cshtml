@@ -1,16 +1,13 @@
 ﻿@model Tourism_Website.Models.Feedback
-
 @{
     ViewBag.Title = "Edit";
 }
-
 <h2>Edit</h2>
-
 
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    
+
     <div class="form-horizontal">
         <h4>Feedback</h4>
         <hr />
@@ -18,17 +15,17 @@
         @Html.HiddenFor(model => model.FeedbackId)
 
         <div class="form-group">
-            @Html.LabelFor(model => model.UserId, "UserId", htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.UserId, "Tourist", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.DropDownList("UserId", null, htmlAttributes: new { @class = "form-control" })
+                @Html.DropDownListFor(model => model.UserId, (SelectList)ViewBag.UserId, "Select Tourist", new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.UserId, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.TourId, "TourId", htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.TourId, "Tour", htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.DropDownList("TourId", null, htmlAttributes: new { @class = "form-control" })
+                @Html.DropDownListFor(model => model.TourId, (SelectList)ViewBag.TourId, "Select Tour", new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.TourId, "", new { @class = "text-danger" })
             </div>
         </div>
@@ -58,16 +55,13 @@
         </div>
 
         <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Save" class="btn btn-default" />
+            <div class="col-md-offset-2 col-md-10 mt-3">
+                <input type="submit" value="Save" class="btn btn-primary" />
+                @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-secondary ms-2" })
             </div>
         </div>
     </div>
 }
-
-<div>
-    @Html.ActionLink("Back to List", "Index")
-</div>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")

@@ -1,0 +1,43 @@
+@{
+    ViewBag.Title = "Tourist Dashboard";
+}
+
+<div class="container mt-4">
+    <h2 style="color: #8e4433;">Tourist Dashboard</h2>
+    <p>Browse tours and manage your bookings and profile.</p>
+
+    <a href="@Url.Action("Index", "Tour")" class="btn edit-btn me-3 mb-2">
+        <i class="fa fa-compass"></i> Browse Tours
+    </a>
+    <a href="@Url.Action("Index", "Booking")" class="btn book-btn mb-2">
+        <i class="fa fa-ticket-alt"></i> My Bookings
+    </a>
+    <a href="@Url.Action("Edit", "User", new { id = Session["UserId"] })" class="btn create-btn mb-2">
+        <i class="fa fa-user-cog"></i> Update Profile
+    </a>
+</div>
+
+<style>
+    .btn {
+        background-color: #8e4433 !important;
+        color: #fff !important;
+        border: none !important;
+        transition: background-color 0.3s;
+    }
+
+    .create-btn:hover {
+        background-color: #6b3025 !important;
+    }
+
+    .edit-btn:hover {
+        background-color: blue !important;
+    }
+
+    .book-btn:hover {
+        background-color: green !important;
+    }
+
+    .btn i {
+        margin-right: 5px;
+    }
+</style>

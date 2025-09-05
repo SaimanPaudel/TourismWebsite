@@ -120,6 +120,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\BookingController.cs" />
+    <Compile Include="Controllers\DashboardController.cs" />
     <Compile Include="Controllers\FeedbackController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TourController.cs" />
@@ -147,6 +148,22 @@
     <Compile Include="Migrations\202509041243482_UpdateTouristIdType.cs" />
     <Compile Include="Migrations\202509041243482_UpdateTouristIdType.Designer.cs">
       <DependentUpon>202509041243482_UpdateTouristIdType.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202509050412293_InitialCreate.cs" />
+    <Compile Include="Migrations\202509050412293_InitialCreate.Designer.cs">
+      <DependentUpon>202509050412293_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202509050413105_UpdateForUserAndTour.cs" />
+    <Compile Include="Migrations\202509050413105_UpdateForUserAndTour.Designer.cs">
+      <DependentUpon>202509050413105_UpdateForUserAndTour.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202509050426399_AddGuideIdToTour.cs" />
+    <Compile Include="Migrations\202509050426399_AddGuideIdToTour.Designer.cs">
+      <DependentUpon>202509050426399_AddGuideIdToTour.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202509050508290_InitialCreate1.cs" />
+    <Compile Include="Migrations\202509050508290_InitialCreate1.Designer.cs">
+      <DependentUpon>202509050508290_InitialCreate1.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Booking.cs" />
@@ -234,6 +251,11 @@
     <Content Include="Views\User\Index.cshtml" />
     <Content Include="Views\Account\Login.cshtml" />
     <Content Include="Views\Account\Register.cshtml" />
+    <Content Include="Views\Dashboard\AdminDashboard.cshtml" />
+    <Content Include="Views\Dashboard\AgencyDashboard.cshtml" />
+    <Content Include="Views\Dashboard\GuideDashboard.cshtml" />
+    <Content Include="Views\Dashboard\TouristDashboard.cshtml" />
+    <Content Include="Views\Home\TestSession.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -280,6 +302,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202509041243482_UpdateTouristIdType.resx">
       <DependentUpon>202509041243482_UpdateTouristIdType.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509050412293_InitialCreate.resx">
+      <DependentUpon>202509050412293_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509050413105_UpdateForUserAndTour.resx">
+      <DependentUpon>202509050413105_UpdateForUserAndTour.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509050426399_AddGuideIdToTour.resx">
+      <DependentUpon>202509050426399_AddGuideIdToTour.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509050508290_InitialCreate1.resx">
+      <DependentUpon>202509050508290_InitialCreate1.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

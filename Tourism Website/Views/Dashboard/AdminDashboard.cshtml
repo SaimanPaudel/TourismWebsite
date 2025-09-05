@@ -1,0 +1,43 @@
+@{
+    ViewBag.Title = "Admin Dashboard";
+}
+
+<div class="container mt-4">
+    <h2 style="color: #8e4433;">Admin Dashboard</h2>
+    <p>Manage users, tours, and overall platform administration.</p>
+
+    <a href="@Url.Action("Index", "User")" class="btn edit-btn me-3 mb-2">
+        <i class="fa fa-users"></i> Manage Users
+    </a>
+    <a href="@Url.Action("Index", "Tour")" class="btn create-btn me-3 mb-2">
+        <i class="fa fa-suitcase-rolling"></i> Manage Tours
+    </a>
+    <a href="@Url.Action("Index", "Booking")" class="btn book-btn mb-2">
+        <i class="fa fa-ticket-alt"></i> View Bookings
+    </a>
+</div>
+
+<style>
+    .btn {
+        background-color: #8e4433 !important;
+        color: #fff !important;
+        border: none !important;
+        transition: background-color 0.3s;
+    }
+
+    .create-btn:hover {
+        background-color: #6b3025 !important;
+    }
+
+    .edit-btn:hover {
+        background-color: blue !important;
+    }
+
+    .book-btn:hover {
+        background-color: green !important;
+    }
+
+    .btn i {
+        margin-right: 5px;
+    }
+</style>

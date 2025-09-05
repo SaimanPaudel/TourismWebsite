@@ -25,39 +25,36 @@ namespace Tourism_Website.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Check if email already registered
                 if (db.Users.Any(u => u.Email == model.Email))
                 {
                     ModelState.AddModelError("Email", "Email is already registered.");
                     return View(model);
                 }
-
                 var user = new User
                 {
                     FullName = model.FullName,
                     Email = model.Email,
-                    Password = model.Password // Plain text password as per current setup
+                    Password = model.Password,  // TODO: Hash passwords before saving in production
+                    Role = model.Role
                 };
-
                 try
                 {
                     db.Users.Add(user);
                     db.SaveChanges();
-
                     TempData["SuccessMessage"] = "Registration successful! You can now log in.";
                     return RedirectToAction("Login");
                 }
                 catch (Exception ex)
                 {
                     ModelState.AddModelError("", "Error creating user: " + ex.Message);
+                    return View(model);
                 }
             }
-
-            // If validation failed or save error, redisplay form with messages
             return View(model);
         }
 
         // GET: Account/Login
+        [HttpGet]
         public ActionResult Login()
         {
             return View();
@@ -66,38 +63,61 @@ namespace Tourism_Website.Controllers
         // POST: Account/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(string email, string password)
+        public ActionResult Login(LoginViewModel model, string returnUrl)
         {
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+            if (!ModelState.IsValid)
             {
-                ModelState.AddModelError("", "Please enter email and password");
-                return View();
+                return View(model);
             }
 
-            var user = db.Users.FirstOrDefault(u => u.Email == email && u.Password == password);
+            var user = db.Users.FirstOrDefault(u => u.Email == model.Email && u.Password == model.Password);
             if (user != null)
             {
-
+                // Set auth cookie
                 FormsAuthentication.SetAuthCookie(user.Email, false);
-                return RedirectToAction("Index", "Home");
+
+                // Set session variables
+                Session["UserRole"] = user.Role;
+                Session["UserId"] = user.UserId;
+
+                // Redirect to returnUrl if it exists and is local
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+
+                // Redirect based on role if no returnUrl
+                switch (user.Role)
+                {
+                    case "Admin":
+                        return RedirectToAction("AdminDashboard", "Dashboard");
+                    case "Agency":
+                        return RedirectToAction("AgencyDashboard", "Dashboard");
+                    case "Guide":
+                        return RedirectToAction("GuideDashboard", "Dashboard");
+                    case "Tourist":
+                        return RedirectToAction("TouristDashboard", "Dashboard");
+                    default:
+                        return RedirectToAction("Index", "Home");
+                }
             }
-            else
-            {
-                ModelState.AddModelError("", "Invalid email or password");
-                return View();
-            }
+
+            ModelState.AddModelError("", "Invalid email or password");
+            return View(model);
         }
 
         // GET: Account/Logout
         public ActionResult Logout()
         {
             FormsAuthentication.SignOut();
+            Session.Clear();
             return RedirectToAction("Index", "Home");
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing) db.Dispose();
+            if (disposing)
+                db.Dispose();
             base.Dispose(disposing);
         }
     }

@@ -1,12 +1,20 @@
 ﻿@model IEnumerable<Tourism_Website.Models.Booking>
 @{
     ViewBag.Title = "Bookings";
+    var userRole = Session["UserRole"] as string ?? "";
+    var userIdString = Session["UserId"]?.ToString() ?? "";
 }
+
 <div class="container my-5">
     <h2 class="mb-4 text-primary">Bookings</h2>
-    <div class="mb-3">
-        @Html.ActionLink("Create New", "Create", null, new { @class = "btn btn-success" })
-    </div>
+
+    @if (userRole == "Tourist")
+    {
+        <div class="mb-3">
+            @Html.ActionLink("Create New Booking", "Create", null, new { @class = "btn btn-success" })
+        </div>
+    }
+
     <div class="table-responsive shadow rounded">
         @if (!Model.Any())
         {
@@ -19,13 +27,13 @@
             <table class="table table-striped table-hover align-middle mb-0 bg-white">
                 <thead class="table-dark">
                     <tr>
-                        <th>@Html.DisplayNameFor(model => model.Tour.Title)</th>
-                        <th>@Html.DisplayNameFor(model => model.TouristId)</th>
-                        <th>@Html.DisplayNameFor(model => model.BookingDate)</th>
-                        <th>@Html.DisplayNameFor(model => model.NumberOfPeople)</th>
-                        <th>@Html.DisplayNameFor(model => model.TotalPrice)</th>
-                        <th>@Html.DisplayNameFor(model => model.Status)</th>
-                        <th>@Html.DisplayNameFor(model => model.SpecialRequests)</th>
+                        <th>@Html.DisplayNameFor(m => m.First().Tour.Title)</th>
+                        <th>TouristId</th>
+                        <th>@Html.DisplayNameFor(m => m.First().BookingDate)</th>
+                        <th>@Html.DisplayNameFor(m => m.First().NumberOfPeople)</th>
+                        <th>@Html.DisplayNameFor(m => m.First().TotalPrice)</th>
+                        <th>@Html.DisplayNameFor(m => m.First().Status)</th>
+                        <th>@Html.DisplayNameFor(m => m.First().SpecialRequests)</th>
                         <th class="text-center">Actions</th>
                     </tr>
                 </thead>
@@ -33,10 +41,10 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>@Html.DisplayFor(modelItem => item.Tour.Title)</td>
-                            <td>@Html.DisplayFor(modelItem => item.TouristId)</td>
+                            <td>@Html.DisplayFor(m => item.Tour.Title)</td>
+                            <td>@item.TouristId</td>
                             <td>@item.BookingDate.ToString("yyyy-MM-dd")</td>
-                            <td>@Html.DisplayFor(modelItem => item.NumberOfPeople)</td>
+                            <td>@item.NumberOfPeople</td>
                             <td>@String.Format("{0:C}", item.TotalPrice)</td>
                             <td>
                                 @{
@@ -58,18 +66,30 @@
                                     @item.Status
                                 }
                             </td>
-                            <td>@Html.DisplayFor(modelItem => item.SpecialRequests)</td>
+                            <td>@item.SpecialRequests</td>
                             <td class="text-center">
-                                <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-sm btn-primary me-1" title="Edit">
-                                    <i class="fa fa-edit"></i>
-                                </a>
-                                <a href="@Url.Action("Details", new { id = item.Id })" class="btn btn-sm btn-info text-white me-1" title="Details">
-                                    <i class="fa fa-eye"></i>
-                                </a>
-                                <a href="@Url.Action("Delete", new { id = item.Id })" class="btn btn-sm btn-danger" title="Delete"
-                                   onclick="return confirm('Are you sure you want to delete this booking?');">
-                                    <i class="fa fa-trash"></i>
-                                </a>
+                                @if (userRole == "Admin" ||
+                                    (userRole == "Tourist" && item.TouristId.ToString() == userIdString) ||
+                                    (userRole == "Agency" && item.Tour.CreatedByUserId == userIdString) ||
+                                    (userRole == "Guide" && item.Tour.GuideId == userIdString))
+                                {
+                                    <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-sm btn-primary me-1" title="Edit">
+                                        <i class="fa fa-edit"></i>
+                                    </a>
+                                    <a href="@Url.Action("Details", new { id = item.Id })" class="btn btn-sm btn-info text-white me-1" title="Details">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                    <a href="@Url.Action("Delete", new { id = item.Id })" class="btn btn-sm btn-danger" title="Delete"
+                                       onclick="return confirm('Are you sure you want to delete this booking?');">
+                                        <i class="fa fa-trash"></i>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a href="@Url.Action("Details", new { id = item.Id })" class="btn btn-sm btn-info text-white" title="Details">
+                                        <i class="fa fa-eye"></i>
+                                    </a>
+                                }
                             </td>
                         </tr>
                     }
@@ -78,3 +98,41 @@
         }
     </div>
 </div>
+
+<style>
+    .btn {
+        background-color: #8e4433 !important;
+        color: #fff !important;
+        border: none !important;
+        transition: background-color 0.3s;
+    }
+
+        .btn:hover {
+            opacity: 0.85;
+        }
+
+    .btn-primary:hover {
+        background-color: blue !important;
+    }
+
+    .btn-info:hover {
+        background-color: #17a2b8 !important;
+        color: #fff !important;
+    }
+
+    .btn-danger:hover {
+        background-color: red !important;
+    }
+
+    .badge.bg-success {
+        background-color: #28a745 !important;
+    }
+
+    .badge.bg-warning {
+        background-color: #ffc107 !important;
+    }
+
+    .badge.bg-danger {
+        background-color: #dc3545 !important;
+    }
+</style>

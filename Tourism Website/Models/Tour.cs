@@ -27,9 +27,12 @@ namespace Tourism_Website.Models
         [Display(Name = "Image Path")]
         public string ImagePath { get; set; }
 
-        public string CreatedByUserId { get; set; }
+        public string CreatedByUserId { get; set; }  // String type for user ID
 
         [Display(Name = "Created At")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // Add GuideId property to link a Guide user (as string to match UserId)
+        public string GuideId { get; set; }
     }
 }
