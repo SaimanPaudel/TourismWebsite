@@ -1,82 +1,154 @@
 ﻿@model Tourism_Website.Models.Tour
-
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = "Tour Details";
+
+    // Session-based role checks (consistent with your app)
+    var role = (Session["UserRole"] as string) ?? "";
+    var uid = (Session["UserId"]?.ToString()) ?? "";
+    bool isAdmin = role == "Admin";
+    bool isAgency = role == "Agency";
+    bool isGuide = role == "Guide";
+    bool canManageThis =
+        isAdmin ||
+        (isAgency && Model.CreatedByUserId == uid) ||
+        (isGuide && (Model.CreatedByUserId == uid || Model.GuideId == uid));
+
+    // Host name prepared in controller: guide name if set, else creator/agency name
+    var hostName = (ViewBag.HostName as string) ?? "—";
 }
 
-<h2>Details</h2>
+<div class="container mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header text-white py-3" style="background-color:#8e4433;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">@Model.Title</h2>
+                <div class="d-flex gap-2">
+                    <a href="@Url.Action("Index","Tour")" class="btn btn-outline-light">
+                        <i class="fa fa-arrow-left"></i> Back to List
+                    </a>
+                    @if (canManageThis)
+                    {
+                        <a href="@Url.Action("Edit","Tour", new { id = Model.Id })" class="btn btn-outline-light">
+                            <i class="fa fa-pen"></i> Edit
+                        </a>
+                        <a href="@Url.Action("Delete","Tour", new { id = Model.Id })" class="btn btn-outline-light">
+                            <i class="fa fa-trash"></i> Delete
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
 
-<div>
-    <h4>Tour</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <div class="col-lg-5">
+                    @if (!string.IsNullOrEmpty(Model.ImagePath))
+                    {
+                        <img src="@Url.Content(Model.ImagePath)" alt="@Model.Title"
+                             style="width:100%; height:320px; object-fit:cover; border-radius:12px;" />
+                    }
+                    else
+                    {
+                        <div class="d-flex align-items-center justify-content-center"
+                             style="height:320px; background:#eee; border-radius:12px;">
+                            <span class="text-muted">No Image</span>
+                        </div>
+                    }
+                </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.Title)
-        </dd>
+                <div class="col-lg-7">
+                    <p class="text-muted mb-2">
+                        <i class="fa fa-map-marker-alt"></i> @Model.Destination
+                    </p>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Destination)
-        </dt>
+                    <p class="mb-3">@Model.Description</p>
 
-        <dd>
-            @Html.DisplayFor(model => model.Destination)
-        </dd>
+                    <div class="mb-3 d-flex flex-wrap gap-2">
+                        <span class="badge" style="background-color:#fdd835; color:#000; font-size:14px;">
+                            💰 @String.Format("{0:C}", Model.Price) AUD
+                        </span>
+                        <span class="badge bg-secondary">⏳ @Model.DurationDays Days</span>
+                        <span class="badge" style="background:#8e4433;">Hosted by @hostName</span>
+                    </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
+                    <div class="small text-muted mb-2">
+                        <span class="me-3"><strong>Created:</strong> @Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</span>
+                    </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.Description)
-        </dd>
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <a href="@Url.Action("Index","Feedback", new { tourId = Model.Id })" class="btn feedback-view-btn">
+                            <i class="fa fa-comments"></i> View Feedback
+                        </a>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Price)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.DurationDays)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.DurationDays)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.ImagePath)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.ImagePath)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.CreatedByUserId)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.CreatedByUserId)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-
-    </dl>
+                        @if (!string.IsNullOrEmpty(role))
+                        {
+                            if (role == "Tourist")
+                            {
+                                <a href="@Url.Action("Create","Feedback", new { tourId = Model.Id })" class="btn feedback-leave-btn">
+                                    <i class="fa fa-comment-dots"></i> Leave Feedback
+                                </a>
+                            }
+                            <a href="@Url.Action("Create","Booking", new { tourId = Model.Id })" class="btn book-btn">
+                                <i class="fa fa-ticket-alt"></i> Book Now
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("Login","Account")" class="btn login-book-btn">
+                                <i class="fa fa-sign-in-alt"></i> Login to Book
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
+
+<style>
+    /* brand buttons */
+    .btn {
+        background-color: #8e4433 !important;
+        color: #fff !important;
+        border: none !important;
+        transition: background-color .3s;
+    }
+
+    .btn-outline-light {
+        background: transparent !important;
+        border: 1px solid #fff !important;
+        color: #fff !important;
+    }
+
+        .btn-outline-light:hover {
+            background: rgba(255,255,255,.15) !important;
+        }
+
+    .book-btn {
+        background-color: #8e4433 !important;
+    }
+
+        .book-btn:hover {
+            background-color: green !important;
+        }
+
+    .login-book-btn:hover {
+        background-color: green !important;
+    }
+
+    .feedback-view-btn:hover {
+        background-color: #5c6bc0 !important;
+    }
+
+    .feedback-leave-btn {
+        background-color: #8e4433 !important;
+    }
+
+        .feedback-leave-btn:hover {
+            background-color: #2e7d32 !important;
+        }
+
+    .btn i {
+        margin-right: 5px;
+    }
+</style>

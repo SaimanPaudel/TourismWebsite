@@ -1,7 +1,16 @@
 ﻿@model IEnumerable<Tourism_Website.Models.Tour>
-
 @{
     ViewBag.Title = "Tours";
+
+    var role = (Session["UserRole"] as string) ?? "";
+    var uid = (Session["UserId"]?.ToString()) ?? "";
+    bool isAdmin = role == "Admin";
+    bool isAgency = role == "Agency";
+    bool isGuide = role == "Guide";
+    bool canManage = isAdmin || isAgency || isGuide;
+
+    // Dictionary<int, string> mapping tourId -> host name (set in controller)
+    var hostMap = ViewBag.HostNames as System.Collections.Generic.IDictionary<int, string>;
 }
 
 <link rel="stylesheet" href="~/Content/tours.css" />
@@ -11,15 +20,16 @@
         <h2 style="color: #8e4433;">Available Tours</h2>
 
         <div class="d-flex gap-2">
-            @if (User.IsInRole("Tourist") || User.IsInRole("Guide") || User.IsInRole("Admin"))
+            <a href="@Url.Action("Index", "Feedback")" class="btn feedback-all-btn px-3 py-2">
+                <i class="fa fa-comments"></i> View All Feedback
+            </a>
+
+            @if (canManage)
             {
-                <a href="@Url.Action("Index", "Feedback")" class="btn feedback-all-btn px-3 py-2">
-                    <i class="fa fa-comments"></i> View All Feedback
+                <a href="@Url.Action("Create", "Tour")" class="btn create-btn px-3 py-2">
+                    <i class="fa fa-plus"></i> Create New Tour
                 </a>
             }
-            <a href="@Url.Action("Create", "Tour")" class="btn create-btn px-3 py-2">
-                <i class="fa fa-plus"></i> Create New Tour
-            </a>
         </div>
     </div>
 
@@ -33,15 +43,34 @@
     {
         foreach (var item in Model)
         {
+            // compute "Hosted by" safely
+            string hostedBy = "—";
+            if (hostMap != null)
+            {
+                string name;
+                if (hostMap.TryGetValue(item.Id, out name) && !string.IsNullOrWhiteSpace(name))
+                {
+                    hostedBy = name;
+                }
+            }
+
+            // who can manage this tour
+            bool canManageThis =
+                isAdmin ||
+                (isAgency && item.CreatedByUserId == uid) ||
+                (isGuide && (item.CreatedByUserId == uid || item.GuideId == uid));
+
             <div class="tour-section mb-4 d-flex gap-3 p-3 shadow-sm">
                 <div class="col-md-5 p-0">
                     @if (!string.IsNullOrEmpty(item.ImagePath))
                     {
-                        <img src="@Url.Content(item.ImagePath)" alt="@item.Title" style="width:100%; height:250px; object-fit:cover; border-radius:10px;" />
+                        <img src="@Url.Content(item.ImagePath)" alt="@item.Title"
+                             style="width:100%; height:250px; object-fit:cover; border-radius:10px;" />
                     }
                     else
                     {
-                        <div class="d-flex align-items-center justify-content-center" style="height:250px; background:#ddd; border-radius:10px;">
+                        <div class="d-flex align-items-center justify-content-center"
+                             style="height:250px; background:#ddd; border-radius:10px;">
                             <span class="text-muted">No Image</span>
                         </div>
                     }
@@ -49,11 +78,16 @@
 
                 <div class="col-md-7">
                     <h4 class="mb-2" style="color:#8e4433;">@item.Title</h4>
-                    <p class="text-muted mb-1"><i class="fa fa-map-marker-alt"></i> @item.Destination</p>
+                    <p class="text-muted mb-1">
+                        <i class="fa fa-map-marker-alt"></i> @item.Destination
+                    </p>
+
                     <p>
-                        @(string.IsNullOrEmpty(item.Description)
-                            ? ""
-                            : (item.Description.Length > 150 ? item.Description.Substring(0, 150) + "..." : item.Description))
+                        @{
+                            var desc = item.Description ?? "";
+                            if (desc.Length > 150) { desc = desc.Substring(0, 150) + "..."; }
+                        }
+                        @desc
                     </p>
 
                     <div class="mb-2">
@@ -61,27 +95,31 @@
                             💰 @String.Format("{0:C}", item.Price) AUD
                         </span>
                         <span class="badge bg-secondary ms-2">⏳ @item.DurationDays Days</span>
+                        <span class="badge ms-2" style="background:#8e4433;">Hosted by @hostedBy</span>
                     </div>
 
                     <div class="d-flex flex-wrap gap-2 mt-3">
                         <a href="@Url.Action("Details", "Tour", new { id = item.Id })" class="btn view-btn">
                             <i class="fa fa-eye"></i> View
                         </a>
-                        <a href="@Url.Action("Edit", "Tour", new { id = item.Id })" class="btn edit-btn">
-                            <i class="fa fa-edit"></i> Edit
-                        </a>
-                        <a href="@Url.Action("Delete", "Tour", new { id = item.Id })" class="btn delete-btn">
-                            <i class="fa fa-trash"></i> Delete
-                        </a>
 
-                        <!-- View feedback for this specific tour -->
+                        @if (canManageThis)
+                        {
+                            <a href="@Url.Action("Edit",   "Tour", new { id = item.Id })" class="btn edit-btn">
+                                <i class="fa fa-edit"></i> Edit
+                            </a>
+                            <a href="@Url.Action("Delete", "Tour", new { id = item.Id })" class="btn delete-btn">
+                                <i class="fa fa-trash"></i> Delete
+                            </a>
+                        }
+
                         <a href="@Url.Action("Index", "Feedback", new { tourId = item.Id })" class="btn feedback-view-btn">
                             <i class="fa fa-comments"></i> Feedback
                         </a>
 
-                        @if (User.Identity.IsAuthenticated)
+                        @if (!string.IsNullOrEmpty(role))
                         {
-                            if (User.IsInRole("Tourist"))
+                            if (role == "Tourist")
                             {
                                 <a href="@Url.Action("Create", "Feedback", new { tourId = item.Id })" class="btn feedback-leave-btn">
                                     <i class="fa fa-comment-dots"></i> Leave Feedback
@@ -106,7 +144,6 @@
 </div>
 
 <style>
-    /* Force all buttons to start brown */
     .btn {
         background-color: #8e4433 !important;
         color: #fff !important;
@@ -142,9 +179,7 @@
         background-color: green !important;
     }
 
-    /* Feedback buttons */
-    .feedback-all-btn:hover,
-    .feedback-view-btn:hover {
+    .feedback-all-btn:hover, .feedback-view-btn:hover {
         background-color: #5c6bc0 !important;
     }
 

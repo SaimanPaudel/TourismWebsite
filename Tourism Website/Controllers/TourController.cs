@@ -10,38 +10,81 @@ namespace Tourism_Website.Controllers
 {
     public class TourController : Controller
     {
-        private Tourism_WebsiteContext db = new Tourism_WebsiteContext();
+        private readonly Tourism_WebsiteContext db = new Tourism_WebsiteContext();
+
+        private string Role => Session["UserRole"] as string ?? string.Empty;
+        private string CurrentUserId => Session["UserId"]?.ToString() ?? string.Empty;
+        private bool IsAdmin => Role == "Admin";
+        private bool IsAgency => Role == "Agency";
+        private bool IsGuide => Role == "Guide";
+        private bool CanManage => IsAdmin || IsAgency || IsGuide;
+
+        // Small helper to map string userId -> FullName
+        private string GetUserNameByStringId(string sid)
+        {
+            if (string.IsNullOrWhiteSpace(sid)) return null;
+            return db.Users
+                     .Where(u => u.UserId.ToString() == sid)
+                     .Select(u => u.FullName)
+                     .FirstOrDefault();
+        }
 
         // GET: Tour
         public ActionResult Index()
         {
-            var role = Session["UserRole"] as string;
-            var userIdString = Session["UserId"]?.ToString() ?? string.Empty;
+            IQueryable<Tour> query;
 
-            if (role == "Agency" && !string.IsNullOrEmpty(userIdString))
+            if (IsAdmin)
             {
-                var agencyTours = db.Tours.Where(t => t.CreatedByUserId == userIdString).ToList();
-                return View(agencyTours);
+                query = db.Tours;
             }
-            else if (role == "Admin")
+            else if (IsAgency && !string.IsNullOrEmpty(CurrentUserId))
             {
-                return View(db.Tours.ToList());
+                query = db.Tours.Where(t => t.CreatedByUserId == CurrentUserId);
+            }
+            else if (IsGuide && !string.IsNullOrEmpty(CurrentUserId))
+            {
+                query = db.Tours.Where(t => t.CreatedByUserId == CurrentUserId || t.GuideId == CurrentUserId);
             }
             else
             {
-                return View(db.Tours.ToList());
+                // Tourists/anonymous: show all public tours
+                query = db.Tours;
             }
+
+            var tours = query.AsNoTracking().ToList();
+
+            // Build a tourId -> host name map (Guide takes precedence, else Creator)
+            var users = db.Users
+                          .Select(u => new { u.UserId, u.FullName })
+                          .ToList()
+                          .ToDictionary(x => x.UserId.ToString(), x => x.FullName);
+
+            ViewBag.HostNames = tours.ToDictionary(
+                t => t.Id,
+                t =>
+                    (!string.IsNullOrEmpty(t.GuideId) && users.ContainsKey(t.GuideId))
+                        ? users[t.GuideId]
+                        : (users.ContainsKey(t.CreatedByUserId) ? users[t.CreatedByUserId] : "—")
+            );
+
+            return View(tours);
         }
 
         // GET: Tour/Details/5
         public ActionResult Details(int? id)
         {
-            if (id == null)
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
-            Tour tour = db.Tours.Find(id);
-            if (tour == null)
-                return HttpNotFound();
+            var tour = db.Tours.Find(id);
+            if (tour == null) return HttpNotFound();
+
+            var creatorName = GetUserNameByStringId(tour.CreatedByUserId);
+            var guideName = GetUserNameByStringId(tour.GuideId);
+
+            ViewBag.HostedBy = guideName ?? creatorName;
+            ViewBag.CreatorName = creatorName;
+            ViewBag.GuideName = guideName;
 
             return View(tour);
         }
@@ -49,28 +92,29 @@ namespace Tourism_Website.Controllers
         // GET: Tour/Create
         public ActionResult Create()
         {
-            var role = Session["UserRole"] as string;
-            if (role != "Agency" && role != "Admin")
-                return new HttpUnauthorizedResult();
-
+            if (!CanManage) return new HttpUnauthorizedResult();
             return View();
         }
 
         // POST: Tour/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Title,Destination,Description,Price,DurationDays,ImagePath")] Tour tour)
+        public ActionResult Create([Bind(Include =
+            "Title,Destination,Description,Price,DurationDays,ImagePath")] Tour tour)
         {
-            var role = Session["UserRole"] as string;
-            var userIdString = Session["UserId"]?.ToString() ?? string.Empty;
-
-            if (role != "Agency" && role != "Admin")
-                return new HttpUnauthorizedResult();
+            if (!CanManage) return new HttpUnauthorizedResult();
 
             if (ModelState.IsValid)
             {
                 tour.CreatedAt = DateTime.UtcNow;
-                tour.CreatedByUserId = userIdString; // Logged-in user id as string
+                tour.CreatedByUserId = CurrentUserId; // who created it
+
+                // If a Guide creates it, also mark them as the assigned guide
+                if (IsGuide)
+                {
+                    tour.GuideId = CurrentUserId;
+                }
+
                 db.Tours.Add(tour);
                 db.SaveChanges();
                 return RedirectToAction("Index");
@@ -81,20 +125,15 @@ namespace Tourism_Website.Controllers
         // GET: Tour/Edit/5
         public ActionResult Edit(int? id)
         {
-            var role = Session["UserRole"] as string;
-            var userIdString = Session["UserId"]?.ToString() ?? string.Empty;
+            if (!CanManage) return new HttpUnauthorizedResult();
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
-            if (role != "Agency" && role != "Admin")
-                return new HttpUnauthorizedResult();
+            var tour = db.Tours.Find(id);
+            if (tour == null) return HttpNotFound();
 
-            if (id == null)
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-
-            Tour tour = db.Tours.Find(id);
-            if (tour == null)
-                return HttpNotFound();
-
-            if (role == "Agency" && (string.IsNullOrEmpty(tour.CreatedByUserId) || tour.CreatedByUserId != userIdString))
+            // Agency must own; Guide must own OR be assigned as GuideId
+            if (IsAgency && tour.CreatedByUserId != CurrentUserId) return new HttpUnauthorizedResult();
+            if (IsGuide && !(tour.CreatedByUserId == CurrentUserId || tour.GuideId == CurrentUserId))
                 return new HttpUnauthorizedResult();
 
             return View(tour);
@@ -103,53 +142,43 @@ namespace Tourism_Website.Controllers
         // POST: Tour/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Title,Destination,Description,Price,DurationDays,ImagePath")] Tour tour)
+        public ActionResult Edit([Bind(Include =
+            "Id,Title,Destination,Description,Price,DurationDays,ImagePath")] Tour tour)
         {
-            var role = Session["UserRole"] as string;
-            var userIdString = Session["UserId"]?.ToString() ?? string.Empty;
+            if (!CanManage) return new HttpUnauthorizedResult();
+            if (!ModelState.IsValid) return View(tour);
 
-            if (role != "Agency" && role != "Admin")
+            var existing = db.Tours.Find(tour.Id);
+            if (existing == null) return HttpNotFound();
+
+            // Agency must own; Guide must own OR be assigned
+            if (IsAgency && existing.CreatedByUserId != CurrentUserId) return new HttpUnauthorizedResult();
+            if (IsGuide && !(existing.CreatedByUserId == CurrentUserId || existing.GuideId == CurrentUserId))
                 return new HttpUnauthorizedResult();
 
-            if (ModelState.IsValid)
-            {
-                var existingTour = db.Tours.Find(tour.Id);
-                if (existingTour == null)
-                    return HttpNotFound();
+            // Update allowed fields only
+            existing.Title = tour.Title;
+            existing.Destination = tour.Destination;
+            existing.Description = tour.Description;
+            existing.Price = tour.Price;
+            existing.DurationDays = tour.DurationDays;
+            existing.ImagePath = tour.ImagePath;
 
-                if (role == "Agency" && (string.IsNullOrEmpty(existingTour.CreatedByUserId) || existingTour.CreatedByUserId != userIdString))
-                    return new HttpUnauthorizedResult();
-
-                existingTour.Title = tour.Title;
-                existingTour.Destination = tour.Destination;
-                existingTour.Description = tour.Description;
-                existingTour.Price = tour.Price;
-                existingTour.DurationDays = tour.DurationDays;
-                existingTour.ImagePath = tour.ImagePath;
-
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(tour);
+            db.SaveChanges();
+            return RedirectToAction("Index");
         }
 
         // GET: Tour/Delete/5
         public ActionResult Delete(int? id)
         {
-            var role = Session["UserRole"] as string;
-            var userIdString = Session["UserId"]?.ToString() ?? string.Empty;
+            if (!CanManage) return new HttpUnauthorizedResult();
+            if (id == null) return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
 
-            if (role != "Agency" && role != "Admin")
-                return new HttpUnauthorizedResult();
+            var tour = db.Tours.Find(id);
+            if (tour == null) return HttpNotFound();
 
-            if (id == null)
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-
-            Tour tour = db.Tours.Find(id);
-            if (tour == null)
-                return HttpNotFound();
-
-            if (role == "Agency" && (string.IsNullOrEmpty(tour.CreatedByUserId) || tour.CreatedByUserId != userIdString))
+            if (IsAgency && tour.CreatedByUserId != CurrentUserId) return new HttpUnauthorizedResult();
+            if (IsGuide && !(tour.CreatedByUserId == CurrentUserId || tour.GuideId == CurrentUserId))
                 return new HttpUnauthorizedResult();
 
             return View(tour);
@@ -160,17 +189,13 @@ namespace Tourism_Website.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            var role = Session["UserRole"] as string;
-            var userIdString = Session["UserId"]?.ToString() ?? string.Empty;
-
-            if (role != "Agency" && role != "Admin")
-                return new HttpUnauthorizedResult();
+            if (!CanManage) return new HttpUnauthorizedResult();
 
             var tour = db.Tours.Find(id);
-            if (tour == null)
-                return HttpNotFound();
+            if (tour == null) return HttpNotFound();
 
-            if (role == "Agency" && (string.IsNullOrEmpty(tour.CreatedByUserId) || tour.CreatedByUserId != userIdString))
+            if (IsAgency && tour.CreatedByUserId != CurrentUserId) return new HttpUnauthorizedResult();
+            if (IsGuide && !(tour.CreatedByUserId == CurrentUserId || tour.GuideId == CurrentUserId))
                 return new HttpUnauthorizedResult();
 
             db.Tours.Remove(tour);
@@ -180,8 +205,7 @@ namespace Tourism_Website.Controllers
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
-                db.Dispose();
+            if (disposing) db.Dispose();
             base.Dispose(disposing);
         }
     }

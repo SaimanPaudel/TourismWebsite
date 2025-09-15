@@ -10,7 +10,8 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
         <h2 class="mb-2" style="color:#8e4433;">Feedback</h2>
 
-        @if (User.Identity.IsAuthenticated)
+        @* Only Tourists can create feedback *@
+        @if (userRole == "Tourist")
         {
             <a href="@Url.Action("Create","Feedback")" class="btn btn-brand">
                 <i class="fa fa-plus"></i> Add Feedback
@@ -30,7 +31,6 @@
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table align-middle table-hover mb-0">
-                        <!-- match Manage Users / Bookings: light header -->
                         <thead class="table-light">
                             <tr>
                                 <th>Tour</th>
@@ -44,15 +44,15 @@
                         <tbody>
                             @foreach (var item in Model)
                             {
-                                var canManage = userRole == "Admin" || userRole == "Agency" || userRole == "Guide"
-                                                || (item.UserId.ToString() == userIdString);
+                                // Only Admin or the Tourist who authored this feedback may manage it
+                                var canManageThis = (userRole == "Admin") ||
+                                                    (userRole == "Tourist" && item.UserId.ToString() == userIdString);
 
                                 <tr>
                                     <td>@(item.Tour != null ? item.Tour.Title : "—")</td>
 
                                     <td>@(item.User != null ? item.User.FullName : "—")</td>
 
-                                    <!-- Rating as stars + badge number -->
                                     <td class="text-center">
                                         @{
                                             var r = item.Rating;
@@ -82,7 +82,7 @@
                                                 <i class="fa fa-eye"></i> View
                                             </a>
 
-                                            @if (canManage)
+                                            @if (canManageThis)
                                             {
                                                 <a href="@Url.Action("Edit","Feedback", new { id = item.FeedbackId })"
                                                    class="btn btn-sm btn-outline-secondary">
@@ -108,7 +108,7 @@
                     <i class="fa fa-circle-info"></i>
                     Ratings shown with stars (max 5). Comments are truncated in the list for readability.
                 </div>
-                <div><!-- placeholder for pagination if needed --></div>
+                <div></div>
             </div>
         </div>
     }
@@ -132,7 +132,7 @@
         font-size: 1rem;
         letter-spacing: .1rem;
         line-height: 1;
-        color: #f5c518; /* gold-like for filled stars */
+        color: #f5c518;
     }
 
     .badge-rating {
