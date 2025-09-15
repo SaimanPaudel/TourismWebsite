@@ -3,89 +3,122 @@
     ViewBag.Title = "Edit Booking";
 }
 
-<h2>Edit Booking</h2>
+<div class="container px-0">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0" style="color:#8e4433;">Edit Booking</h2>
+        <a href="@Url.Action("Index","Booking")" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-left"></i> Back to List
+        </a>
+    </div>
 
-@using (Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.Id)
 
-    <div class="form-horizontal">
-        <h4>Booking</h4>
-        <hr />
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-        <!-- Tour dropdown -->
-        <div class="form-group row">
-            @Html.LabelFor(model => model.TourId, "Tour", htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
-                @Html.DropDownListFor(model => model.TourId, (SelectList)ViewBag.TourId, "Select a Tour", new { @class = "form-select" })
-                @Html.ValidationMessageFor(model => model.TourId, "", new { @class = "text-danger" })
-            </div>
-        </div>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="row g-3">
 
-        <!-- Tourist dropdown -->
-        <div class="form-group row">
-            @Html.LabelFor(model => model.TouristId, "Tourist", htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
-                @Html.DropDownListFor(model => model.TouristId, (SelectList)ViewBag.TouristId, "Select a Tourist", new { @class = "form-select" })
-                @Html.ValidationMessageFor(model => model.TouristId, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                    <!-- Tour -->
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.TourId, "Tour", new { @class = "form-label" })
+                        @Html.DropDownListFor(
+                            m => m.TourId,
+                            (IEnumerable<SelectListItem>)ViewBag.TourId,
+                            "-- Select a Tour --",
+                            new { @class = "form-select" })
+                        @Html.ValidationMessageFor(m => m.TourId, "", new { @class = "text-danger" })
+                    </div>
 
-        <!-- Booking Date -->
-        <div class="form-group row">
-            @Html.LabelFor(model => model.BookingDate, htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.BookingDate, new { htmlAttributes = new { @class = "form-control", type = "date" } })
-                @Html.ValidationMessageFor(model => model.BookingDate, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                    <!-- Tourist -->
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.TouristId, "Tourist", new { @class = "form-label" })
+                        @Html.DropDownListFor(
+                            m => m.TouristId,
+                            (IEnumerable<SelectListItem>)ViewBag.TouristId,
+                            "-- Select a Tourist --",
+                            new { @class = "form-select" })
+                        @Html.ValidationMessageFor(m => m.TouristId, "", new { @class = "text-danger" })
+                    </div>
 
-        <!-- Number of People -->
-        <div class="form-group row">
-            @Html.LabelFor(model => model.NumberOfPeople, htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.NumberOfPeople, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.NumberOfPeople, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                    <!-- Booking Date -->
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.BookingDate, new { @class = "form-label" })
+                        @Html.TextBoxFor(
+                            m => m.BookingDate,
+                            "{0:yyyy-MM-dd}",
+                            new { @class = "form-control", type = "date" })
+                        @Html.ValidationMessageFor(m => m.BookingDate, "", new { @class = "text-danger" })
+                    </div>
 
-        <!-- Total Price -->
-        <div class="form-group row">
-            @Html.LabelFor(model => model.TotalPrice, htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.TotalPrice, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.TotalPrice, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                    <!-- Number of People -->
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.NumberOfPeople, new { @class = "form-label" })
+                        @Html.TextBoxFor(
+                            m => m.NumberOfPeople,
+                            new { @class = "form-control", type = "number", min = "1", step = "1" })
+                        @Html.ValidationMessageFor(m => m.NumberOfPeople, "", new { @class = "text-danger" })
+                    </div>
 
-        <!-- Status -->
-        <div class="form-group row">
-            @Html.LabelFor(model => model.Status, htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.Status, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                    <!-- Total Price (read-only; recalculated server-side on save) -->
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.TotalPrice, new { @class = "form-label" })
+                        @Html.TextBoxFor(
+                            m => m.TotalPrice,
+                            new { @class = "form-control", type = "number", step = "0.01", @readonly = "readonly" })
+                        <small class="text-muted">Total price is recalculated from the tour price × number of people when you save.</small>
+                        @Html.ValidationMessageFor(m => m.TotalPrice, "", new { @class = "text-danger" })
+                    </div>
 
-        <!-- Special Requests -->
-        <div class="form-group row">
-            @Html.LabelFor(model => model.SpecialRequests, htmlAttributes: new { @class = "col-md-2 col-form-label" })
-            <div class="col-md-10">
-                @Html.TextAreaFor(model => model.SpecialRequests, new { @class = "form-control", rows = 3 })
-                @Html.ValidationMessageFor(model => model.SpecialRequests, "", new { @class = "text-danger" })
-            </div>
-        </div>
+                    <!-- Status -->
+                    <div class="col-md-6">
+                        @Html.LabelFor(m => m.Status, new { @class = "form-label" })
+                        @Html.DropDownListFor(
+                            m => m.Status,
+                            new SelectList(new[] { "Pending", "Confirmed", "Cancelled" }, Model.Status),
+                            "-- Select Status --",
+                            new { @class = "form-select" })
+                        @Html.ValidationMessageFor(m => m.Status, "", new { @class = "text-danger" })
+                    </div>
 
-        <div class="form-group row mt-3">
-            <div class="col-md-10 offset-md-2">
-                <input type="submit" value="Save" class="btn btn-primary" />
-                @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-secondary ms-2" })
+                    <!-- Special Requests -->
+                    <div class="col-md-12">
+                        @Html.LabelFor(m => m.SpecialRequests, new { @class = "form-label" })
+                        @Html.TextAreaFor(m => m.SpecialRequests, new { @class = "form-control", rows = 3 })
+                        @Html.ValidationMessageFor(m => m.SpecialRequests, "", new { @class = "text-danger" })
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card-footer d-flex justify-content-end gap-2">
+                <button type="submit" class="btn btn-brand">
+                    <i class="fa fa-save"></i> Save
+                </button>
+                <a href="@Url.Action("Index","Booking")" class="btn btn-outline-secondary">
+                    Cancel
+                </a>
             </div>
         </div>
-    </div>
-}
+    }
+</div>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
 }
+
+<style>
+    .btn-brand {
+        background-color: #8e4433;
+        color: #fff;
+        border: 0;
+    }
+
+        .btn-brand:hover {
+            background-color: #6b3025;
+            color: #fff;
+        }
+</style>

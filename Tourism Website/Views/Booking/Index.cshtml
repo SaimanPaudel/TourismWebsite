@@ -5,134 +5,105 @@
     var userIdString = Session["UserId"]?.ToString() ?? "";
 }
 
-<div class="container my-5">
-    <h2 class="mb-4 text-primary">Bookings</h2>
+<div class="container px-0">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <h2 class="mb-2" style="color:#8e4433;">Bookings</h2>
 
-    @if (userRole == "Tourist")
-    {
-        <div class="mb-3">
-            @Html.ActionLink("Create New Booking", "Create", null, new { @class = "btn btn-success" })
-        </div>
-    }
-
-    <div class="table-responsive shadow rounded">
-        @if (!Model.Any())
+        @if (userRole == "Tourist")
         {
-            <div class="text-center text-muted fst-italic p-4">
-                No bookings found.
-            </div>
-        }
-        else
-        {
-            <table class="table table-striped table-hover align-middle mb-0 bg-white">
-                <thead class="table-dark">
-                    <tr>
-                        <th>@Html.DisplayNameFor(m => m.First().Tour.Title)</th>
-                        <th>TouristId</th>
-                        <th>@Html.DisplayNameFor(m => m.First().BookingDate)</th>
-                        <th>@Html.DisplayNameFor(m => m.First().NumberOfPeople)</th>
-                        <th>@Html.DisplayNameFor(m => m.First().TotalPrice)</th>
-                        <th>@Html.DisplayNameFor(m => m.First().Status)</th>
-                        <th>@Html.DisplayNameFor(m => m.First().SpecialRequests)</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>@Html.DisplayFor(m => item.Tour.Title)</td>
-                            <td>@item.TouristId</td>
-                            <td>@item.BookingDate.ToString("yyyy-MM-dd")</td>
-                            <td>@item.NumberOfPeople</td>
-                            <td>@String.Format("{0:C}", item.TotalPrice)</td>
-                            <td>
-                                @{
-                                    var status = item.Status?.ToLower() ?? "";
-                                    var badgeClass = status switch
-                                    {
-                                        "confirmed" => "bg-success text-white",
-                                        "pending" => "bg-warning text-dark",
-                                        "cancelled" => "bg-danger",
-                                        _ => ""
-                                    };
-                                }
-                                @if (!string.IsNullOrEmpty(badgeClass))
-                                {
-                                    <span class="badge @badgeClass">@item.Status</span>
-                                }
-                                else
-                                {
-                                    @item.Status
-                                }
-                            </td>
-                            <td>@item.SpecialRequests</td>
-                            <td class="text-center">
-                                @if (userRole == "Admin" ||
-                                    (userRole == "Tourist" && item.TouristId.ToString() == userIdString) ||
-                                    (userRole == "Agency" && item.Tour.CreatedByUserId == userIdString) ||
-                                    (userRole == "Guide" && item.Tour.GuideId == userIdString))
-                                {
-                                    <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-sm btn-primary me-1" title="Edit">
-                                        <i class="fa fa-edit"></i>
-                                    </a>
-                                    <a href="@Url.Action("Details", new { id = item.Id })" class="btn btn-sm btn-info text-white me-1" title="Details">
-                                        <i class="fa fa-eye"></i>
-                                    </a>
-                                    <a href="@Url.Action("Delete", new { id = item.Id })" class="btn btn-sm btn-danger" title="Delete"
-                                       onclick="return confirm('Are you sure you want to delete this booking?');">
-                                        <i class="fa fa-trash"></i>
-                                    </a>
-                                }
-                                else
-                                {
-                                    <a href="@Url.Action("Details", new { id = item.Id })" class="btn btn-sm btn-info text-white" title="Details">
-                                        <i class="fa fa-eye"></i>
-                                    </a>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+            <a href="@Url.Action("Create","Booking")" class="btn btn-brand">
+                <i class="fa fa-plus"></i> Create New Booking
+            </a>
         }
     </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info shadow-sm" style="background:#f8f2f0;border:0;color:#000;">
+            No bookings found.
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle mb-0 table-brand">
+                        <thead>
+                            <tr>
+                                <th>@Html.DisplayNameFor(m => m.First().Tour.Title)</th>
+                                <th>TouristId</th>
+                                <th>@Html.DisplayNameFor(m => m.First().BookingDate)</th>
+                                <th>@Html.DisplayNameFor(m => m.First().NumberOfPeople)</th>
+                                <th>@Html.DisplayNameFor(m => m.First().TotalPrice)</th>
+                                <th>@Html.DisplayNameFor(m => m.First().Status)</th>
+                                <th>@Html.DisplayNameFor(m => m.First().SpecialRequests)</th>
+                                <th class="text-end" style="width:240px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@(item.Tour != null ? item.Tour.Title : "—")</td>
+                                    <td>@item.TouristId</td>
+                                    <td>@item.BookingDate.ToString("yyyy-MM-dd")</td>
+                                    <td>@item.NumberOfPeople</td>
+                                    <td>@String.Format("{0:C}", item.TotalPrice)</td>
+                                    <td>
+                                        @{
+                                            var status = item.Status?.ToLower() ?? "";
+                                            var badgeClass =
+                                                status == "confirmed" ? "badge-status confirmed" :
+                                                status == "pending" ? "badge-status pending" :
+                                                status == "cancelled" ? "badge-status cancelled" :
+                                                                        "badge-status";
+                                        }
+                                        <span class="@badgeClass">@(!string.IsNullOrWhiteSpace(item.Status) ? item.Status : "—")</span>
+                                    </td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.SpecialRequests) ? "—" : item.SpecialRequests)</td>
+
+                                    <td class="text-end">
+                                        <div class="d-flex flex-wrap justify-content-end gap-2">
+                                            @if (userRole == "Admin" ||
+                                                 (userRole == "Tourist" && item.TouristId.ToString() == userIdString) ||
+                                                 (userRole == "Agency" && item.Tour?.CreatedByUserId == userIdString) ||
+                                                 (userRole == "Guide" && item.Tour?.GuideId == userIdString))
+                                            {
+                                                <a href="@Url.Action("Details","Booking", new { id = item.Id })" class="btn btn-sm btn-outline-brand">
+                                                    <i class="fa fa-eye"></i> View
+                                                </a>
+                                                <a href="@Url.Action("Edit","Booking", new { id = item.Id })" class="btn btn-sm btn-outline-brand">
+                                                    <i class="fa fa-pen"></i> Edit
+                                                </a>
+                                                <a href="@Url.Action("Delete","Booking", new { id = item.Id })"
+                                                   class="btn btn-sm btn-outline-danger"
+                                                   onclick="return confirm('Are you sure you want to delete this booking?');">
+                                                    <i class="fa fa-trash"></i> Delete
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a href="@Url.Action("Details","Booking", new { id = item.Id })" class="btn btn-sm btn-outline-brand">
+                                                    <i class="fa fa-eye"></i> View
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer small text-muted d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fa fa-circle-info"></i>
+                    Confirmed / Pending / Cancelled shown with status badges.
+                </div>
+                <div></div>
+            </div>
+        </div>
+    }
 </div>
-
-<style>
-    .btn {
-        background-color: #8e4433 !important;
-        color: #fff !important;
-        border: none !important;
-        transition: background-color 0.3s;
-    }
-
-        .btn:hover {
-            opacity: 0.85;
-        }
-
-    .btn-primary:hover {
-        background-color: blue !important;
-    }
-
-    .btn-info:hover {
-        background-color: #17a2b8 !important;
-        color: #fff !important;
-    }
-
-    .btn-danger:hover {
-        background-color: red !important;
-    }
-
-    .badge.bg-success {
-        background-color: #28a745 !important;
-    }
-
-    .badge.bg-warning {
-        background-color: #ffc107 !important;
-    }
-
-    .badge.bg-danger {
-        background-color: #dc3545 !important;
-    }
-</style>

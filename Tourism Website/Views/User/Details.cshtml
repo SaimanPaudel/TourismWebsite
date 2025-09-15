@@ -1,26 +1,152 @@
 ﻿@model Tourism_Website.Models.User
-
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = "User Details";
+    var isPending = (Model.RequestedRole != null && Model.IsRoleApproved == null);
+    var isRejected = (Model.RequestedRole != null && Model.IsRoleApproved == false);
 }
 
-<h2>Details</h2>
+<div class="container px-0">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0" style="color:#8e4433;">User Details</h2>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("Edit","User", new { id = Model.UserId })" class="btn btn-brand">
+                <i class="fa fa-pen"></i> Edit
+            </a>
+            <a href="@Url.Action("Index","User")" class="btn btn-outline-secondary">
+                <i class="fa fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
 
-<div>
-    <h4>User</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.FullName)
-        </dt>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="mb-2 text-muted small">Full Name</div>
+                    <div class="fw-semibold">@Model.FullName</div>
+                </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.FullName)
-        </dd>
+                <div class="col-md-6">
+                    <div class="mb-2 text-muted small">Email</div>
+                    <div class="fw-semibold"><a href="mailto:@Model.Email">@Model.Email</a></div>
+                </div>
 
-    </dl>
+                <div class="col-md-6">
+                    <div class="mb-2 text-muted small">Role</div>
+                    <div>
+                        @switch ((Model.Role ?? "").ToLower())
+                        {
+                            case "admin":
+                                @:<span class="badge role-badge admin">Admin</span>
+                                break;
+                            case "agency":
+                                @:<span class="badge role-badge agency">Agency</span>
+                                break;
+                            case "guide":
+                                @:<span class="badge role-badge guide">Guide</span>
+                                break;
+                            default:
+                                @:<span class="badge role-badge tourist">Tourist</span>
+                                break;
+                        }
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-2 text-muted small">Role Request</div>
+                    <div>
+                        @if (isPending)
+                        {
+                            <span class="badge request-badge pending">
+                                <i class="fa-regular fa-hourglass-half"></i> Requested: @Model.RequestedRole
+                            </span>
+                        }
+                        else if (isRejected)
+                        {
+                            <span class="badge request-badge rejected">
+                                <i class="fa fa-ban"></i> @Model.RequestedRole Rejected
+                            </span>
+                        }
+                        else if (!string.IsNullOrEmpty(Model.RequestedRole) && Model.IsRoleApproved == true)
+                        {
+                            <span class="badge request-badge approved">
+                                <i class="fa fa-check"></i> Approved
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="small text-muted">
+                        <i class="fa fa-circle-info"></i>
+                        Tourist is the default role. Agency/Guide upgrades require admin approval.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-end gap-2">
+            <a href="@Url.Action("Edit","User", new { id = Model.UserId })" class="btn btn-brand">
+                <i class="fa fa-pen"></i> Edit
+            </a>
+            <a href="@Url.Action("Delete","User", new { id = Model.UserId })" class="btn btn-outline-danger">
+                <i class="fa fa-trash"></i> Delete
+            </a>
+        </div>
+    </div>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.UserId }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
+
+<style>
+    .btn-brand {
+        background-color: #8e4433;
+        color: #fff;
+        border: 0;
+    }
+
+        .btn-brand:hover {
+            background-color: #6b3025;
+            color: #fff;
+        }
+
+    .role-badge {
+        font-weight: 600;
+        padding: .45rem .6rem;
+    }
+
+        .role-badge.admin {
+            background: #2e7d32;
+        }
+
+        .role-badge.agency {
+            background: #5c6bc0;
+        }
+
+        .role-badge.guide {
+            background: #0097a7;
+        }
+
+        .role-badge.tourist {
+            background: #8e4433;
+        }
+
+    .request-badge {
+        font-weight: 600;
+        padding: .45rem .6rem;
+    }
+
+        .request-badge.pending {
+            background: #fdd835;
+            color: #000;
+        }
+
+        .request-badge.approved {
+            background: #2e7d32;
+        }
+
+        .request-badge.rejected {
+            background: #e53935;
+        }
+</style>

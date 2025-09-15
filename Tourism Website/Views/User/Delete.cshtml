@@ -1,32 +1,84 @@
 ﻿@model Tourism_Website.Models.User
-
 @{
-    ViewBag.Title = "Delete";
+    ViewBag.Title = "Delete User";
+    bool hasBlockingRelations = (Model.Bookings != null && Model.Bookings.Any()) || (Model.Feedbacks != null && Model.Feedbacks.Any());
 }
 
-<h2>Delete</h2>
+<div class="container px-0">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0" style="color:#8e4433;">Delete User</h2>
+        <a href="@Url.Action("Index","User")" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-left"></i> Back to List
+        </a>
+    </div>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>User</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.FullName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.FullName)
-        </dd>
-
-    </dl>
-
-    @using (Html.BeginForm()) {
-        @Html.AntiForgeryToken()
-
-        <div class="form-actions no-color">
-            <input type="submit" value="Delete" class="btn btn-default" /> |
-            @Html.ActionLink("Back to List", "Index")
-        </div>
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
+    {
+        <div class="alert alert-warning"><i class="fa fa-triangle-exclamation"></i> @ViewBag.ErrorMessage</div>
     }
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <p class="mb-3">Are you sure you want to delete this user? This action cannot be undone.</p>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="mb-2 text-muted small">Full Name</div>
+                    <div class="fw-semibold">@Model.FullName</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-2 text-muted small">Email</div>
+                    <div class="fw-semibold"><a href="mailto:@Model.Email">@Model.Email</a></div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-2 text-muted small">Role</div>
+                    <div class="fw-semibold">@Model.Role</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-2 text-muted small">Related Data</div>
+                    <div>
+                        <span class="badge bg-secondary">Bookings: @(Model.Bookings?.Count() ?? 0)</span>
+                        <span class="badge bg-secondary ms-1">Feedbacks: @(Model.Feedbacks?.Count() ?? 0)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-end gap-2">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+
+                if (hasBlockingRelations)
+                {
+                    <button type="submit" class="btn btn-danger" disabled title="Cannot delete: user has bookings or feedback">
+                        <i class="fa fa-trash"></i> Delete
+                    </button>
+                    <span class="align-self-center text-muted">User has related records and cannot be deleted.</span>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fa fa-trash"></i> Delete
+                    </button>
+                }
+                <a href="@Url.Action("Details","User", new { id = Model.UserId })" class="btn btn-outline-secondary">
+                    <i class="fa fa-eye"></i> Cancel
+                </a>
+            }
+        </div>
+    </div>
 </div>
+
+<style>
+    .btn-brand {
+        background-color: #8e4433;
+        color: #fff;
+        border: 0;
+    }
+
+        .btn-brand:hover {
+            background-color: #6b3025;
+            color: #fff;
+        }
+</style>

@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using System
+@using Tourism_Website.Data
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -14,7 +17,11 @@
     @Scripts.Render("~/bundles/modernizr")
     <style>
         html {
-            scroll-behavior: smooth; /* Smooth scrolling */
+            scroll-behavior: smooth;
+        }
+
+        .navbar .badge {
+            margin-left: 6px;
         }
     </style>
 </head>
@@ -23,7 +30,27 @@
         string currentController = ViewContext.RouteData.Values["controller"].ToString();
         string currentAction = ViewContext.RouteData.Values["action"].ToString();
         var userRole = Session["UserRole"] as string ?? "";
+        var displayName = (Session["UserName"] as string) ?? User.Identity.Name;
+
+        // Inline pending count for Admin badge (simple + safe)
+        int pendingRoleCount = 0;
+        if (string.Equals(userRole, "Admin", StringComparison.OrdinalIgnoreCase))
+        {
+            try
+            {
+                using (var _ctx = new Tourism_WebsiteContext())
+                {
+                    pendingRoleCount = _ctx.Users.Count(u => u.RequestedRole != null && u.IsRoleApproved == null);
+                }
+            }
+            catch
+            {
+                // ignore layout-time DB errors to avoid breaking the page
+                pendingRoleCount = 0;
+            }
+        }
     }
+
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background-color: #8e4433;">
         <div class="container">
@@ -31,36 +58,47 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar" aria-controls="topNavbar" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="topNavbar">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        @Html.ActionLink("Home", "Index", "Home", null, new { @class = "nav-link " + (currentController == "Home" && currentAction == "Index" ? "active" : "") })
+                        @Html.ActionLink("Home", "Index", "Home", null,
+                            new { @class = "nav-link " + (currentController == "Home" && currentAction == "Index" ? "active" : "") })
                     </li>
                     <li class="nav-item">
-                        @Html.ActionLink("About", "About", "Home", null, new { @class = "nav-link " + (currentController == "Home" && currentAction == "About" ? "active" : "") })
+                        @Html.ActionLink("About", "About", "Home", null,
+                            new { @class = "nav-link " + (currentController == "Home" && currentAction == "About" ? "active" : "") })
                     </li>
                     <li class="nav-item">
-                        @Html.ActionLink("Contact", "Contact", "Home", null, new { @class = "nav-link " + (currentController == "Home" && currentAction == "Contact" ? "active" : "") })
+                        @Html.ActionLink("Tours", "Index", "Tour", null,
+                            new { @class = "nav-link " + (currentController == "Tour" ? "active" : "") })
                     </li>
                     <li class="nav-item">
-                        @Html.ActionLink("Tours", "Index", "Tour", null, new { @class = "nav-link " + (currentController == "Tour" ? "active" : "") })
-                    </li>
-                    <li class="nav-item">
-                        @Html.ActionLink("Booking", "Index", "Booking", null, new { @class = "nav-link " + (currentController == "Booking" ? "active" : "") })
-                    </li>
-                    <li class="nav-item">
-                        @Html.ActionLink("Feedback", "Index", "Feedback", null, new { @class = "nav-link " + (currentController == "Feedback" ? "active" : "") })
+                        @Html.ActionLink("Booking", "Index", "Booking", null,
+                            new { @class = "nav-link " + (currentController == "Booking" ? "active" : "") })
                     </li>
 
-                    @* Show Manage Users only to Admin *@
+                    @* Admin-only links *@
                     @if (userRole == "Admin")
                     {
                         <li class="nav-item">
-                            @Html.ActionLink("Manage Users", "Index", "User", null, new { @class = "nav-link " + (currentController == "User" ? "active" : "") })
+                            @Html.ActionLink("Manage Users", "Index", "User", null,
+                                new { @class = "nav-link " + (currentController == "User" ? "active" : "") })
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link @(currentController == "Admin" && currentAction == "PendingRoleRequests" ? "active" : "")"
+                               href="@Url.Action("PendingRoleRequests", "Admin")">
+                                Role Requests
+                                @if (pendingRoleCount > 0)
+                                {
+                                    <span class="badge bg-warning text-dark">@pendingRoleCount</span>
+                                }
+                            </a>
                         </li>
                     }
 
-                    @* Show Manage Tours to Admin and Agency *@
+                    @* Manage Tours to Admin and Agency *@
                     @if (userRole == "Admin" || userRole == "Agency")
                     {
                         <li class="nav-item">
@@ -68,13 +106,22 @@
                         </li>
                     }
 
-                    @* Show Manage Bookings to Admin, Agency, Guide *@
+                    @* Manage Bookings to Admin, Agency, Guide *@
                     @if (userRole == "Admin" || userRole == "Agency" || userRole == "Guide")
                     {
                         <li class="nav-item">
                             @Html.ActionLink("Manage Bookings", "Index", "Booking", null, new { @class = "nav-link" })
                         </li>
                     }
+
+                    <li class="nav-item">
+                        @Html.ActionLink("Feedback", "Index", "Feedback", null,
+                            new { @class = "nav-link " + (currentController == "Feedback" ? "active" : "") })
+                    </li>
+                    <li class="nav-item">
+                        @Html.ActionLink("Contact", "Contact", "Home", null,
+                            new { @class = "nav-link " + (currentController == "Home" && currentAction == "Contact" ? "active" : "") })
+                    </li>
                 </ul>
 
                 <!-- Right-side Login/Logout -->
@@ -82,7 +129,7 @@
                     @if (User.Identity.IsAuthenticated)
                     {
                         <li class="nav-item">
-                            <span class="navbar-text text-white me-3">Hello, @User.Identity.Name</span>
+                            <span class="navbar-text text-white me-3">Hello, @displayName</span>
                         </li>
                         <li class="nav-item">
                             @Html.ActionLink("Logout", "Logout", "Account", null, new { @class = "btn btn-outline-light" })
@@ -98,6 +145,29 @@
             </div>
         </div>
     </nav>
+
+    <!-- TempData alerts -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Info"] != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show m-3" role="alert">
+            @TempData["Info"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
     <!-- Page Content -->
     <div class="container mt-4" id="pageContent">

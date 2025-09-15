@@ -1,0 +1,48 @@
+﻿@model IEnumerable<Tourism_Website.Models.User>
+@{
+    ViewBag.Title = "Pending Role Requests";
+}
+
+<h2>Pending Role Requests</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No pending requests.</div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Requested Role</th>
+                <th>Current Role</th>
+                <th>Approve / Reject</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in Model)
+            {
+                <tr>
+                    <td>@u.FullName</td>
+                    <td>@u.Email</td>
+                    <td>@u.RequestedRole</td>
+                    <td>@u.Role</td>
+                    <td class="d-flex gap-2">
+                        @using (Html.BeginForm("ApproveRole", "Admin", new { id = u.UserId }, FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                        }
+                        @using (Html.BeginForm("RejectRole", "Admin", new { id = u.UserId }, FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

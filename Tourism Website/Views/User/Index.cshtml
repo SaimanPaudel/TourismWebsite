@@ -1,33 +1,220 @@
 ﻿@model IEnumerable<Tourism_Website.Models.User>
-
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Manage Users";
+    var q = Request["q"] ?? "";
+    var roleFilter = Request["role"] ?? "All";
 }
 
-<h2>Index</h2>
+<div class="container px-0">
+    <!-- Header / Toolbar -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <h2 class="mb-2" style="color:#8e4433;">Manage Users</h2>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
-<table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.FullName)
-        </th>
-        <th></th>
-    </tr>
+        <form method="get" class="d-flex gap-2">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fa fa-search"></i></span>
+                <input name="q" value="@q" class="form-control" placeholder="Search name or email..." />
+            </div>
+            <select name="role" class="form-select" style="min-width:180px">
+                <option value="All" @(roleFilter == "All" ? "selected" : null)>All Roles</option>
+                <option value="Tourist" @(roleFilter == "Tourist" ? "selected" : null)>Tourist</option>
+                <option value="Agency" @(roleFilter == "Agency" ? "selected" : null)>Agency</option>
+                <option value="Guide" @(roleFilter == "Guide" ? "selected" : null)>Guide</option>
+                <option value="Admin" @(roleFilter == "Admin" ? "selected" : null)>Admin</option>
+                <option value="Pending" @(roleFilter == "Pending" ? "selected" : null)>Pending Requests</option>
+            </select>
+            <button class="btn btn-brand"><i class="fa fa-filter"></i> Apply</button>
+            <a href="@Url.Action("Index", "User")" class="btn btn-outline-secondary">Reset</a>
+        </form>
+    </div>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.FullName)
-        </td>
-        <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.UserId }) |
-            @Html.ActionLink("Details", "Details", new { id=item.UserId }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.UserId })
-        </td>
-    </tr>
-}
+    <p>
+        <a href="@Url.Action("Create", "User")" class="btn btn-brand"><i class="fa fa-user-plus"></i> Create New</a>
+    </p>
 
-</table>
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info shadow-sm" style="background:#f8f2f0;border:0;color:#000;">
+            No users found.
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table align-middle table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:32px;"></th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Request Status</th>
+                                <th class="text-end" style="width:360px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var u in Model)
+                            {
+                                var isPending = (u.RequestedRole != null && u.IsRoleApproved == null);
+                                var isRejected = (u.RequestedRole != null && u.IsRoleApproved == false);
+                                <tr>
+                                    <td class="text-muted"><i class="fa-regular fa-user"></i></td>
+                                    <td class="fw-semibold">@u.FullName</td>
+                                    <td><a href="mailto:@u.Email">@u.Email</a></td>
+                                    <td>
+                                        @switch ((u.Role ?? "").ToLower())
+                                        {
+                                            case "admin":
+                                                @:<span class="badge role-badge admin">Admin</span>
+                                                break;
+                                            case "agency":
+                                                @:<span class="badge role-badge agency">Agency</span>
+                                                break;
+                                            case "guide":
+                                                @:<span class="badge role-badge guide">Guide</span>
+                                                break;
+                                            default:
+                                                @:<span class="badge role-badge tourist">Tourist</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (isPending)
+                                        {
+                                            <span class="badge request-badge pending">
+                                                <i class="fa-regular fa-hourglass-half"></i>
+                                                Requested: @u.RequestedRole
+                                            </span>
+                                        }
+                                        else if (isRejected)
+                                        {
+                                            <span class="badge request-badge rejected">
+                                                <i class="fa fa-ban"></i>
+                                                @u.RequestedRole Rejected
+                                            </span>
+                                        }
+                                        else if (!string.IsNullOrEmpty(u.RequestedRole) && u.IsRoleApproved == true)
+                                        {
+                                            <span class="badge request-badge approved">
+                                                <i class="fa fa-check"></i>
+                                                Approved
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-flex flex-wrap justify-content-end gap-2">
+                                            <a href="@Url.Action("Details", "User", new { id = u.UserId })" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-eye"></i> View
+                                            </a>
+                                            <a href="@Url.Action("Edit", "User", new { id = u.UserId })" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fa fa-pen"></i> Edit
+                                            </a>
+                                            <a href="@Url.Action("Delete", "User", new { id = u.UserId })" class="btn btn-sm btn-outline-danger">
+                                                <i class="fa fa-trash"></i> Delete
+                                            </a>
+
+                                            @* Approve / Reject only if pending *@
+                                            @if (isPending)
+                                            {
+                                                using (Html.BeginForm("ApproveRole", "Admin", new { id = u.UserId }, FormMethod.Post, new { @class = "d-inline" }))
+                                                {
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-success">
+                                                        <i class="fa fa-check"></i> Approve
+                                                    </button>
+                                                }
+                                                using (Html.BeginForm("RejectRole", "Admin", new { id = u.UserId }, FormMethod.Post, new { @class = "d-inline" }))
+                                                {
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-warning">
+                                                        <i class="fa fa-xmark"></i> Reject
+                                                    </button>
+                                                }
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card-footer d-flex justify-content-between align-items-center small text-muted">
+                <div>
+                    <i class="fa fa-circle-info"></i>
+                    Tourist is the default role. Agency/Guide require admin approval.
+                </div>
+                <div>
+                    @* Placeholder for pagination if you add it later *@
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    /* Brand button */
+    .btn-brand {
+        background-color: #8e4433;
+        color: #fff;
+        border: 0;
+    }
+
+        .btn-brand:hover {
+            background-color: #6b3025;
+            color: #fff;
+        }
+
+    /* Role badges (consistent with brand) */
+    .role-badge {
+        font-weight: 600;
+        padding: .45rem .6rem;
+    }
+
+        .role-badge.admin {
+            background: #2e7d32;
+        }
+        /* green */
+        .role-badge.agency {
+            background: #5c6bc0;
+        }
+        /* indigo */
+        .role-badge.guide {
+            background: #0097a7;
+        }
+        /* teal */
+        .role-badge.tourist {
+            background: #8e4433;
+        }
+    /* brand brown */
+
+    /* Request badges */
+    .request-badge {
+        font-weight: 600;
+        padding: .45rem .6rem;
+    }
+
+        .request-badge.pending {
+            background: #fdd835;
+            color: #000;
+        }
+
+        .request-badge.approved {
+            background: #2e7d32;
+        }
+
+        .request-badge.rejected {
+            background: #e53935;
+        }
+
+    .table thead th {
+        white-space: nowrap;
+    }
+</style>

@@ -1,15 +1,28 @@
 ﻿@model IEnumerable<Tourism_Website.Models.Tour>
+
 @{
     ViewBag.Title = "Tours";
 }
+
 <link rel="stylesheet" href="~/Content/tours.css" />
+
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 style="color: #8e4433;">Available Tours</h2>
-        <a href="@Url.Action("Create", "Tour")" class="btn create-btn px-3 py-2">
-            <i class="fa fa-plus"></i> Create New Tour
-        </a>
+
+        <div class="d-flex gap-2">
+            @if (User.IsInRole("Tourist") || User.IsInRole("Guide") || User.IsInRole("Admin"))
+            {
+                <a href="@Url.Action("Index", "Feedback")" class="btn feedback-all-btn px-3 py-2">
+                    <i class="fa fa-comments"></i> View All Feedback
+                </a>
+            }
+            <a href="@Url.Action("Create", "Tour")" class="btn create-btn px-3 py-2">
+                <i class="fa fa-plus"></i> Create New Tour
+            </a>
+        </div>
     </div>
+
     @if (!Model.Any())
     {
         <div class="alert alert-info text-center shadow-sm" style="background-color:#f8f2f0; color:#000; border-radius:10px;">
@@ -33,6 +46,7 @@
                         </div>
                     }
                 </div>
+
                 <div class="col-md-7">
                     <h4 class="mb-2" style="color:#8e4433;">@item.Title</h4>
                     <p class="text-muted mb-1"><i class="fa fa-map-marker-alt"></i> @item.Destination</p>
@@ -41,25 +55,40 @@
                             ? ""
                             : (item.Description.Length > 150 ? item.Description.Substring(0, 150) + "..." : item.Description))
                     </p>
+
                     <div class="mb-2">
                         <span class="badge" style="background-color:#fdd835; color:#000; font-size:14px;">
                             💰 @String.Format("{0:C}", item.Price) AUD
                         </span>
                         <span class="badge bg-secondary ms-2">⏳ @item.DurationDays Days</span>
                     </div>
+
                     <div class="d-flex flex-wrap gap-2 mt-3">
-                        <a href="@Url.Action("Details", "Tour", new { id=item.Id })" class="btn view-btn">
+                        <a href="@Url.Action("Details", "Tour", new { id = item.Id })" class="btn view-btn">
                             <i class="fa fa-eye"></i> View
                         </a>
-                        <a href="@Url.Action("Edit", "Tour", new { id=item.Id })" class="btn edit-btn">
+                        <a href="@Url.Action("Edit", "Tour", new { id = item.Id })" class="btn edit-btn">
                             <i class="fa fa-edit"></i> Edit
                         </a>
-                        <a href="@Url.Action("Delete", "Tour", new { id=item.Id })" class="btn delete-btn">
+                        <a href="@Url.Action("Delete", "Tour", new { id = item.Id })" class="btn delete-btn">
                             <i class="fa fa-trash"></i> Delete
                         </a>
+
+                        <!-- View feedback for this specific tour -->
+                        <a href="@Url.Action("Index", "Feedback", new { tourId = item.Id })" class="btn feedback-view-btn">
+                            <i class="fa fa-comments"></i> Feedback
+                        </a>
+
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <a href="@Url.Action("Create", "Booking", new { tourId=item.Id })" class="btn book-btn">
+                            if (User.IsInRole("Tourist"))
+                            {
+                                <a href="@Url.Action("Create", "Feedback", new { tourId = item.Id })" class="btn feedback-leave-btn">
+                                    <i class="fa fa-comment-dots"></i> Leave Feedback
+                                </a>
+                            }
+
+                            <a href="@Url.Action("Create", "Booking", new { tourId = item.Id })" class="btn book-btn">
                                 <i class="fa fa-ticket-alt"></i> Book Now
                             </a>
                         }
@@ -75,6 +104,7 @@
         }
     }
 </div>
+
 <style>
     /* Force all buttons to start brown */
     .btn {
@@ -83,7 +113,7 @@
         border: none !important;
         transition: background-color 0.3s;
     }
-    /* Hover styles */
+
     .view-btn:hover {
         background-color: grey !important;
     }
@@ -97,21 +127,35 @@
     }
 
     .book-btn {
-        background-color: #8e4433 !important; /* brown default */
+        background-color: #8e4433 !important;
     }
 
         .book-btn:hover {
-            background-color: green !important; /* green on hover */
+            background-color: green !important;
         }
 
     .create-btn:hover {
-        background-color: #6b3025 !important; /* darker brown */
+        background-color: #6b3025 !important;
     }
 
     .login-book-btn:hover {
         background-color: green !important;
     }
-    /* Optional: icon spacing */
+
+    /* Feedback buttons */
+    .feedback-all-btn:hover,
+    .feedback-view-btn:hover {
+        background-color: #5c6bc0 !important;
+    }
+
+    .feedback-leave-btn {
+        background-color: #8e4433 !important;
+    }
+
+        .feedback-leave-btn:hover {
+            background-color: #2e7d32 !important;
+        }
+
     .btn i {
         margin-right: 5px;
     }

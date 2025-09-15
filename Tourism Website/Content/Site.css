@@ -18,3 +18,116 @@ select,
 textarea {
     max-width: 280px;
 }
+/* ===== Brand theme (brown) shared across pages ===== */
+.btn-brand {
+    background: #8e4433;
+    color: #fff;
+    border: 0
+}
+
+    .btn-brand:hover {
+        background: #6b3025;
+        color: #fff
+    }
+
+.btn-outline-brand {
+    background: #fff;
+    border: 1px solid #8e4433;
+    color: #8e4433
+}
+
+    .btn-outline-brand:hover {
+        background: #8e4433;
+        color: #fff
+    }
+
+.table-brand thead tr {
+    background: #8e4433;
+    color: #fff
+}
+
+.table-brand thead th {
+    border-color: #6b3025 !important
+}
+
+.table-brand tbody tr:hover {
+    background: #f8f2f0
+}
+
+/* Status / role badges */
+.badge-status {
+    padding: .45rem .6rem;
+    border-radius: .5rem;
+    font-weight: 600
+}
+
+    .badge-status.pending {
+        background: #fdd835;
+        color: #000
+    }
+
+    .badge-status.confirmed {
+        background: #2e7d32;
+        color: #fff
+    }
+
+    .badge-status.cancelled {
+        background: #e53935;
+        color: #fff
+    }
+
+.role-badge {
+    font-weight: 600;
+    padding: .45rem .6rem
+}
+
+    .role-badge.admin {
+        background: #2e7d32
+    }
+
+    .role-badge.agency {
+        background: #5c6bc0
+    }
+
+    .role-badge.guide {
+        background: #0097a7
+    }
+
+    .role-badge.tourist {
+        background: #8e4433
+    }
+
+.request-badge {
+    font-weight: 600;
+    padding: .45rem .6rem
+}
+
+    .request-badge.pending {
+        background: #fdd835;
+        color: #000
+    }
+
+    .request-badge.approved {
+        background: #2e7d32
+    }
+
+    .request-badge.rejected {
+        background: #e53935
+    }
+
+/* Feedback stars */
+.rating-stars {
+    font-size: 1rem;
+    letter-spacing: .1rem;
+    line-height: 1;
+    color: #f5c518
+}
+
+.badge-rating {
+    margin-top: .25rem;
+    background: #8e4433;
+    color: #fff;
+    font-weight: 600;
+    padding: .35rem .55rem;
+    border-radius: .5rem
+}

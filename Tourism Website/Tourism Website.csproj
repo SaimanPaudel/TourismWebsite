@@ -119,6 +119,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\BookingController.cs" />
     <Compile Include="Controllers\DashboardController.cs" />
     <Compile Include="Controllers\FeedbackController.cs" />
@@ -164,6 +165,18 @@
     <Compile Include="Migrations\202509050508290_InitialCreate1.cs" />
     <Compile Include="Migrations\202509050508290_InitialCreate1.Designer.cs">
       <DependentUpon>202509050508290_InitialCreate1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202509150820108_Baseline.cs" />
+    <Compile Include="Migrations\202509150820108_Baseline.Designer.cs">
+      <DependentUpon>202509150820108_Baseline.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202509150820448_EnsureUniqueEmails.cs" />
+    <Compile Include="Migrations\202509150820448_EnsureUniqueEmails.Designer.cs">
+      <DependentUpon>202509150820448_EnsureUniqueEmails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202509150831026_AddRoleApprovalFields.cs" />
+    <Compile Include="Migrations\202509150831026_AddRoleApprovalFields.Designer.cs">
+      <DependentUpon>202509150831026_AddRoleApprovalFields.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Booking.cs" />
@@ -256,6 +269,7 @@
     <Content Include="Views\Dashboard\GuideDashboard.cshtml" />
     <Content Include="Views\Dashboard\TouristDashboard.cshtml" />
     <Content Include="Views\Home\TestSession.cshtml" />
+    <Content Include="Views\Admin\PendingRoleRequests.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -314,6 +328,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202509050508290_InitialCreate1.resx">
       <DependentUpon>202509050508290_InitialCreate1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509150820108_Baseline.resx">
+      <DependentUpon>202509150820108_Baseline.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509150820448_EnsureUniqueEmails.resx">
+      <DependentUpon>202509150820448_EnsureUniqueEmails.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509150831026_AddRoleApprovalFields.resx">
+      <DependentUpon>202509150831026_AddRoleApprovalFields.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -1,50 +1,93 @@
 ﻿@model Tourism_Website.Models.Booking
 @{
     ViewBag.Title = "Delete Booking";
+
+    var status = (Model.Status ?? "").ToLower();
+    var statusClass = status == "confirmed" ? "bg-success text-white"
+                   : status == "pending" ? "bg-warning text-dark"
+                   : status == "cancelled" ? "bg-danger text-white"
+                   : "bg-secondary text-white";
 }
 
-<h2>Delete Booking</h2>
-<h3>Are you sure you want to delete this booking?</h3>
+<div class="container px-0">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0" style="color:#8e4433;">Delete Booking</h2>
+        <a href="@Url.Action("Index","Booking")" class="btn btn-outline-secondary">
+            <i class="fa fa-arrow-left"></i> Back to List
+        </a>
+    </div>
 
-<div>
-    <h4>Booking Details</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <!-- Tour Title -->
-        <dt>@Html.DisplayNameFor(model => model.Tour.Title)</dt>
-        <dd>@Html.DisplayFor(model => model.Tour.Title)</dd>
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <i class="fa fa-triangle-exclamation me-2"></i>
+        Are you sure you want to delete this booking? This action cannot be undone.
+    </div>
 
-        <!-- Tourist Name -->
-        <dt>@Html.DisplayNameFor(model => model.Tourist.FullName)</dt>
-        <dd>@Html.DisplayFor(model => model.Tourist.FullName)</dd>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">Tour</div>
+                    <div class="fw-semibold">@Model.Tour?.Title</div>
+                </div>
 
-        <!-- Booking Date -->
-        <dt>@Html.DisplayNameFor(model => model.BookingDate)</dt>
-        <dd>@Html.DisplayFor(model => model.BookingDate)</dd>
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">Tourist</div>
+                    <div class="fw-semibold">@Model.Tourist?.FullName</div>
+                </div>
 
-        <!-- Number of People -->
-        <dt>@Html.DisplayNameFor(model => model.NumberOfPeople)</dt>
-        <dd>@Html.DisplayFor(model => model.NumberOfPeople)</dd>
+                <div class="col-md-4">
+                    <div class="text-muted small mb-1">Booking Date</div>
+                    <div class="fw-semibold">@Model.BookingDate.ToString("yyyy-MM-dd")</div>
+                </div>
 
-        <!-- Total Price -->
-        <dt>@Html.DisplayNameFor(model => model.TotalPrice)</dt>
-        <dd>@Html.DisplayFor(model => model.TotalPrice)</dd>
+                <div class="col-md-4">
+                    <div class="text-muted small mb-1">People</div>
+                    <div class="fw-semibold">@Model.NumberOfPeople</div>
+                </div>
 
-        <!-- Status -->
-        <dt>@Html.DisplayNameFor(model => model.Status)</dt>
-        <dd>@Html.DisplayFor(model => model.Status)</dd>
+                <div class="col-md-4">
+                    <div class="text-muted small mb-1">Total Price</div>
+                    <div class="fw-semibold">@String.Format("{0:C}", Model.TotalPrice)</div>
+                </div>
 
-        <!-- Special Requests -->
-        <dt>@Html.DisplayNameFor(model => model.SpecialRequests)</dt>
-        <dd>@Html.DisplayFor(model => model.SpecialRequests)</dd>
-    </dl>
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">Status</div>
+                    <span class="badge @statusClass">@Model.Status</span>
+                </div>
 
-    @using (Html.BeginForm())
-    {
-        @Html.AntiForgeryToken()
-        <div class="form-actions no-color">
-            <input type="submit" value="Delete" class="btn btn-danger" />
-            @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-secondary ms-2" })
+                <div class="col-md-12">
+                    <div class="text-muted small mb-1">Special Requests</div>
+                    <div class="fw-semibold">@(!string.IsNullOrWhiteSpace(Model.SpecialRequests) ? Model.SpecialRequests : "—")</div>
+                </div>
+            </div>
         </div>
-    }
+
+        <div class="card-footer d-flex justify-content-end gap-2">
+            @using (Html.BeginForm())
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(m => m.Id) <!-- ensure id posts correctly -->
+
+                <button type="submit" class="btn btn-danger">
+                    <i class="fa fa-trash"></i> Delete
+                </button>
+                <a href="@Url.Action("Details","Booking", new { id = Model.Id })" class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+            }
+        </div>
+    </div>
 </div>
+
+<style>
+    .btn-brand {
+        background-color: #8e4433;
+        color: #fff;
+        border: 0;
+    }
+
+        .btn-brand:hover {
+            background-color: #6b3025;
+            color: #fff;
+        }
+</style>

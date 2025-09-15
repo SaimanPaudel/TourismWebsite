@@ -1,68 +1,89 @@
 ﻿@model Tourism_Website.Models.Feedback
 @{
-    ViewBag.Title = "Edit";
+    ViewBag.Title = "Edit Feedback";
 }
-<h2>Edit</h2>
 
-@using (Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
+<div class="container px-0">
+    <h2 class="mb-3" style="color:#8e4433;">Edit Feedback</h2>
 
-    <div class="form-horizontal">
-        <h4>Feedback</h4>
-        <hr />
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.FeedbackId)
+
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        @Html.HiddenFor(model => model.FeedbackId)
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.UserId, "Tourist", htmlAttributes: new { @class = "control-label col-md-2" })
+        <!-- Author (read-only) -->
+        <div class="mb-3 row">
+            @Html.Label("Author", new { @class = "col-md-2 col-form-label" })
             <div class="col-md-10">
-                @Html.DropDownListFor(model => model.UserId, (SelectList)ViewBag.UserId, "Select Tourist", new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.UserId, "", new { @class = "text-danger" })
+                <input class="form-control" value="@(Model.User != null ? Model.User.FullName : ("User #" + Model.UserId))" readonly />
             </div>
         </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.TourId, "Tour", htmlAttributes: new { @class = "control-label col-md-2" })
+        <!-- Tour -->
+        <div class="mb-3 row">
+            @Html.LabelFor(m => m.TourId, "Tour", new { @class = "col-md-2 col-form-label" })
             <div class="col-md-10">
-                @Html.DropDownListFor(model => model.TourId, (SelectList)ViewBag.TourId, "Select Tour", new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.TourId, "", new { @class = "text-danger" })
+                @Html.DropDownListFor(
+                    m => m.TourId,
+                    (SelectList)ViewBag.TourId,
+                    "Select Tour",
+                    new { @class = "form-select" })
+                @Html.ValidationMessageFor(m => m.TourId, "", new { @class = "text-danger" })
             </div>
         </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.Rating, htmlAttributes: new { @class = "control-label col-md-2" })
+        <!-- Rating -->
+        <div class="mb-3 row">
+            @Html.LabelFor(m => m.Rating, new { @class = "col-md-2 col-form-label" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.Rating, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Rating, "", new { @class = "text-danger" })
+                @Html.TextBoxFor(m => m.Rating, new { @class = "form-control", type = "number", min = "1", max = "5", step = "1" })
+                @Html.ValidationMessageFor(m => m.Rating, "", new { @class = "text-danger" })
             </div>
         </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.Comments, htmlAttributes: new { @class = "control-label col-md-2" })
+        <!-- Comments -->
+        <div class="mb-3 row">
+            @Html.LabelFor(m => m.Comments, new { @class = "col-md-2 col-form-label" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.Comments, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.Comments, "", new { @class = "text-danger" })
+                @Html.TextAreaFor(m => m.Comments, new { @class = "form-control", rows = 4 })
+                @Html.ValidationMessageFor(m => m.Comments, "", new { @class = "text-danger" })
             </div>
         </div>
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.DatePosted, htmlAttributes: new { @class = "control-label col-md-2" })
+        <!-- Date Posted (read-only display) -->
+        <div class="mb-3 row">
+            @Html.LabelFor(m => m.DatePosted, new { @class = "col-md-2 col-form-label" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.DatePosted, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.DatePosted, "", new { @class = "text-danger" })
+                <input class="form-control" value="@Model.DatePosted.ToString("yyyy-MM-dd HH:mm")" readonly />
             </div>
         </div>
 
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10 mt-3">
-                <input type="submit" value="Save" class="btn btn-primary" />
-                @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-secondary ms-2" })
+        <div class="row">
+            <div class="col-md-10 offset-md-2">
+                <button type="submit" class="btn btn-brand">
+                    <i class="fa fa-save"></i> Save
+                </button>
+                @Html.ActionLink("Back to List", "Index", new { tourId = Model.TourId }, new { @class = "btn btn-outline-secondary ms-2" })
             </div>
         </div>
-    </div>
-}
+    }
+</div>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
 }
+
+<style>
+    .btn-brand {
+        background-color: #8e4433;
+        color: #fff;
+        border: 0;
+    }
+
+        .btn-brand:hover {
+            background-color: #6b3025;
+            color: #fff;
+        }
+</style>
