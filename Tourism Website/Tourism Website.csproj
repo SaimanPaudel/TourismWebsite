@@ -178,6 +178,10 @@
     <Compile Include="Migrations\202509150831026_AddRoleApprovalFields.Designer.cs">
       <DependentUpon>202509150831026_AddRoleApprovalFields.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202509160025494_SnapshotSync.cs" />
+    <Compile Include="Migrations\202509160025494_SnapshotSync.Designer.cs">
+      <DependentUpon>202509160025494_SnapshotSync.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Booking.cs" />
     <Compile Include="Models\Feedback.cs" />
@@ -338,6 +342,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202509150831026_AddRoleApprovalFields.resx">
       <DependentUpon>202509150831026_AddRoleApprovalFields.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509160025494_SnapshotSync.resx">
+      <DependentUpon>202509160025494_SnapshotSync.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

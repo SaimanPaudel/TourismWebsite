@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Web;
 
@@ -27,7 +28,8 @@ namespace Tourism_Website.Models
             // Navigation properties
             public virtual Tour Tour { get; set; }
             public virtual User Tourist { get; set; }
-        }
+        
+    }
     }
 
 

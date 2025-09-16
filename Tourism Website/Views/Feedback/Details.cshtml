@@ -1,58 +1,131 @@
 ﻿@model Tourism_Website.Models.Feedback
-
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = "Feedback Details";
+
+    var role = (Session["UserRole"] as string) ?? "";
+    var uid = (Session["UserId"]?.ToString()) ?? "";
+
+    bool canEdit = role == "Admin" || (role == "Tourist" && Model.UserId.ToString() == uid);
+
+    var tourTitle = Model.Tour != null ? Model.Tour.Title : "—";
+    var authorName = Model.User != null ? Model.User.FullName : "—";
+    var datePosted = Model.DatePosted.ToString("yyyy-MM-dd");
+
+    var r = Math.Max(0, Math.Min(Model.Rating, 5));
+    var stars = new string('★', r) + new string('☆', 5 - r);
 }
 
-<h2>Details</h2>
+<div class="container px-0">
+    <!-- Header / Toolbar -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <h2 class="mb-0" style="color:#8e4433;">Feedback Details</h2>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("Index","Feedback")" class="btn btn-outline-secondary">
+                <i class="fa fa-arrow-left"></i> Back to List
+            </a>
+            @if (canEdit)
+            {
+                <a href="@Url.Action("Edit","Feedback", new { id = Model.FeedbackId })" class="btn btn-brand">
+                    <i class="fa fa-pen"></i> Edit
+                </a>
+            }
+        </div>
+    </div>
 
-<div>
-    <h4>Feedback</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Tour.Title)
-        </dt>
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header text-white py-3" style="background:#8e4433;">
+            <div class="d-flex flex-wrap justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-light text-dark fw-semibold">Tour</span>
+                    <h4 class="mb-0">
+                        @if (Model.Tour != null)
+                        {
+                            <a href="@Url.Action("Details","Tour", new { id = Model.Tour.Id })" class="text-white text-decoration-underline">
+                                @tourTitle
+                            </a>
+                        }
+                        else
+                        { @tourTitle}
+                    </h4>
+                </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.Tour.Title)
-        </dd>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-light text-dark fw-semibold">Rating</span>
+                    <span class="rating-stars" title="@($"{r}/5")" aria-label="@($"{r} out of 5")">@stars</span>
+                </div>
+            </div>
+        </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.User.FullName)
-        </dt>
+        <div class="card-body p-4">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="mb-3">
+                        <div class="text-muted small mb-1">Author</div>
+                        <div class="fw-semibold">@authorName</div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="mb-3">
+                        <div class="text-muted small mb-1">Date Posted</div>
+                        <div class="fw-semibold">@datePosted</div>
+                    </div>
+                </div>
 
-        <dd>
-            @Html.DisplayFor(model => model.User.FullName)
-        </dd>
+                <div class="col-12">
+                    <div class="text-muted small mb-2">Comments</div>
+                    <div class="comment-box">
+                        @if (!string.IsNullOrWhiteSpace(Model.Comments))
+                        {
+                            @Html.Raw(HttpUtility.HtmlEncode(Model.Comments).Replace("\n", "<br/>"))
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Rating)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Rating)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Comments)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Comments)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.DatePosted)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.DatePosted)
-        </dd>
-
-    </dl>
+        <div class="card-footer d-flex justify-content-end gap-2">
+            <a href="@Url.Action("Index","Feedback")" class="btn btn-outline-secondary">
+                <i class="fa fa-list"></i> Back to List
+            </a>
+            @if (canEdit)
+            {
+                <a href="@Url.Action("Edit","Feedback", new { id = Model.FeedbackId })" class="btn btn-brand">
+                    <i class="fa fa-pen"></i> Edit
+                </a>
+            }
+        </div>
+    </div>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.FeedbackId }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
+
+<style>
+    .btn-brand {
+        background-color: #8e4433;
+        color: #fff;
+        border: 0;
+    }
+
+        .btn-brand:hover {
+            background-color: #6b3025;
+            color: #fff;
+        }
+
+    .rating-stars {
+        font-size: 1.25rem;
+        letter-spacing: .12rem;
+        line-height: 1;
+        color: #f5c518; /* gold */
+        white-space: nowrap;
+    }
+
+    .comment-box {
+        background: #f8f2f0;
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        border-left: 5px solid #8e4433;
+        color: #000;
+    }
+</style>

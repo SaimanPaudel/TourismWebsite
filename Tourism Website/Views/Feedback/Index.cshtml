@@ -6,31 +6,36 @@
 }
 
 <div class="container px-0">
-    <!-- Header / Toolbar -->
-    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
-        <h2 class="mb-2" style="color:#8e4433;">Feedback</h2>
 
-        @* Only Tourists can create feedback *@
-        @if (userRole == "Tourist")
-        {
-            <a href="@Url.Action("Create","Feedback")" class="btn btn-brand">
-                <i class="fa fa-plus"></i> Add Feedback
-            </a>
-        }
-    </div>
+    <div class="card shadow-sm border-0 rounded-4">
+        <!-- Brown header like the details pages -->
+        <div class="card-header text-white py-3" style="background:#8e4433;">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Feedback</h2>
 
-    @if (!Model.Any())
-    {
-        <div class="alert alert-info shadow-sm" style="background:#f8f2f0;border:0;color:#000;">
-            No feedback found.
+                @* Only Tourists can create feedback *@
+                @if (userRole == "Tourist")
+                {
+                    <a href="@Url.Action("Create","Feedback")" class="btn btn-outline-light">
+                        <i class="fa fa-plus"></i> Add Feedback
+                    </a>
+                }
+            </div>
         </div>
-    }
-    else
-    {
-        <div class="card shadow-sm">
+
+        @if (!Model.Any())
+        {
+            <div class="card-body">
+                <div class="alert alert-info shadow-sm mb-0" style="background:#f8f2f0;border:0;color:#000;">
+                    No feedback found.
+                </div>
+            </div>
+        }
+        else
+        {
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table align-middle table-hover mb-0">
+                    <table class="table align-middle table-hover mb-0 feedback-table">
                         <thead class="table-light">
                             <tr>
                                 <th>Tour</th>
@@ -59,10 +64,11 @@
                                             var stars = new string('★', Math.Max(0, Math.Min(r, 5))) +
                                                         new string('☆', Math.Max(0, 5 - Math.Min(r, 5)));
                                         }
-                                        <div class="d-inline-flex flex-column align-items-center">
-                                            <div class="rating-stars">@stars</div>
-                                            <span class="badge badge-rating">@r</span>
-                                        </div>
+                                        <span class="rating-stars"
+                                              title="@($"{r}/5")"
+                                              aria-label="@($"{r} out of 5")">
+                                            @stars
+                                        </span>
                                     </td>
 
                                     <td>
@@ -110,12 +116,11 @@
                 </div>
                 <div></div>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
 
 <style>
-    /* Brand button (same as Bookings/Manage Users) */
     .btn-brand {
         background-color: #8e4433;
         color: #fff;
@@ -127,21 +132,17 @@
             color: #fff;
         }
 
-    /* Rating visuals */
     .rating-stars {
         font-size: 1rem;
-        letter-spacing: .1rem;
+        letter-spacing: .12rem;
         line-height: 1;
-        color: #f5c518;
+        color: #f5c518; /* gold */
+        white-space: nowrap;
+        display: inline-block;
     }
 
-    .badge-rating {
-        margin-top: .25rem;
-        background: #8e4433;
-        color: #fff;
-        font-weight: 600;
-        padding: .35rem .55rem;
-        border-radius: .5rem;
+    .feedback-table tbody tr:hover td {
+        background: #fffaf7;
     }
 
     .table thead th {

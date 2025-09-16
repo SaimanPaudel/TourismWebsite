@@ -18,21 +18,12 @@ namespace Tourism_Website.Controllers
         private bool IsLoggedIn => !string.IsNullOrEmpty(Role) && UserIdInt.HasValue;
         private bool CanManage => Role == "Admin" || Role == "Agency" || Role == "Guide";
 
+        // Only populate the Tours dropdown; Tourist is locked/read-only
         private void PopulateEditSelects(Booking booking)
         {
-            // Tours dropdown
             ViewBag.TourId = new SelectList(
                 db.Tours.OrderBy(t => t.Title).ToList(),
                 "Id", "Title", booking?.TourId);
-
-            // Only users with Tourist role for the TouristId field
-            var touristUsers = db.Users
-                .Where(u => u.Role == "Tourist")
-                .OrderBy(u => u.FullName)
-                .ToList();
-
-            ViewBag.TouristId = new SelectList(
-                touristUsers, "UserId", "FullName", booking?.TouristId);
         }
 
         // GET: Booking
@@ -102,7 +93,10 @@ namespace Tourism_Website.Controllers
 
             if (booking == null) return HttpNotFound();
 
-            // Allow Admin/Agency/Guide; or the Tourist who owns it
+            // Fallback: hydrate Tourist if nav is not populated
+            if (booking.Tourist == null && booking.TouristId > 0)
+                booking.Tourist = db.Users.Find(booking.TouristId);
+
             if (CanManage || (UserIdInt.HasValue && booking.TouristId == UserIdInt.Value))
                 return View(booking);
 
@@ -121,6 +115,10 @@ namespace Tourism_Website.Controllers
                 .FirstOrDefault(b => b.Id == id);
 
             if (booking == null) return HttpNotFound();
+
+            // Fallback hydrate
+            if (booking.Tourist == null && booking.TouristId > 0)
+                booking.Tourist = db.Users.Find(booking.TouristId);
 
             // Scope Agency/Guide to only their tours
             if (Role == "Agency")
@@ -141,9 +139,10 @@ namespace Tourism_Website.Controllers
         }
 
         // POST: Booking/Edit/5
+        // TouristId deliberately NOT bound: the tourist is locked and cannot be changed.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,TourId,TouristId,BookingDate,NumberOfPeople,Status,SpecialRequests")] Booking posted)
+        public ActionResult Edit([Bind(Include = "Id,TourId,BookingDate,NumberOfPeople,Status,SpecialRequests")] Booking posted)
         {
             if (!CanManage) return new HttpUnauthorizedResult();
 
@@ -168,9 +167,8 @@ namespace Tourism_Website.Controllers
 
             if (ModelState.IsValid)
             {
-                // Update allowed fields
+                // Update allowed fields ONLY (TouristId is intentionally NOT touched)
                 existing.TourId = posted.TourId;
-                existing.TouristId = posted.TouristId; // keep if you want Admin/Agency/Guide to reassign owner
                 existing.BookingDate = posted.BookingDate;
                 existing.NumberOfPeople = posted.NumberOfPeople;
                 existing.Status = posted.Status;
@@ -188,7 +186,6 @@ namespace Tourism_Website.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Repopulate dropdowns when returning the view
             PopulateEditSelects(posted);
             return View(existing);
         }
@@ -206,7 +203,10 @@ namespace Tourism_Website.Controllers
 
             if (booking == null) return HttpNotFound();
 
-            // Scope checks
+            // Fallback hydrate
+            if (booking.Tourist == null && booking.TouristId > 0)
+                booking.Tourist = db.Users.Find(booking.TouristId);
+
             if (Role == "Agency")
             {
                 var uid = Session["UserId"]?.ToString();
@@ -233,7 +233,6 @@ namespace Tourism_Website.Controllers
             var booking = db.Bookings.Find(id);
             if (booking == null) return HttpNotFound();
 
-            // Scope checks
             if (Role == "Agency")
             {
                 var uid = Session["UserId"]?.ToString();
@@ -274,7 +273,7 @@ namespace Tourism_Website.Controllers
                 var tour = db.Tours.Find(tourId.Value);
                 if (tour != null)
                 {
-                    booking.TotalPrice = tour.Price; // will be multiplied on POST by NumberOfPeople
+                    booking.TotalPrice = tour.Price; // final total recalculated on POST
                 }
             }
 
@@ -297,7 +296,7 @@ namespace Tourism_Website.Controllers
                 if (tour != null)
                     booking.TotalPrice = tour.Price * booking.NumberOfPeople;
 
-                // Always set to the logged-in user; ignore any posted TouristId
+                // Always set to the logged-in user
                 booking.TouristId = UserIdInt.Value;
 
                 db.Bookings.Add(booking);

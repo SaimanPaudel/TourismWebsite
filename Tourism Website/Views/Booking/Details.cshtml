@@ -2,6 +2,17 @@
 @{
     ViewBag.Title = "Booking Details";
 
+    // Who can edit? Admin/Agency/Guide OR the tourist who owns this booking
+    var role = (Session["UserRole"] as string) ?? "";
+    var uid = (Session["UserId"]?.ToString()) ?? "";
+    bool canEdit = role == "Admin" || role == "Agency" || role == "Guide"
+                   || (role == "Tourist" && Model.TouristId.ToString() == uid);
+
+    var tourTitle = Model.Tour != null ? Model.Tour.Title : "—";
+    var touristName = Model.Tourist != null ? Model.Tourist.FullName : "—";
+    var dateStr = Model.BookingDate.ToString("yyyy-MM-dd");
+    var totalStr = String.Format("{0:C}", Model.TotalPrice);
+
     var status = (Model.Status ?? "").ToLower();
     var statusClass = status == "confirmed" ? "bg-success text-white"
                    : status == "pending" ? "bg-warning text-dark"
@@ -10,73 +21,129 @@
 }
 
 <div class="container px-0">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- Page toolbar -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
         <h2 class="mb-0" style="color:#8e4433;">Booking Details</h2>
-        <a href="@Url.Action("Index","Booking")" class="btn btn-outline-secondary">
-            <i class="fa fa-arrow-left"></i> Back to List
-        </a>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("Index","Booking")" class="btn btn-outline-secondary">
+                <i class="fa fa-arrow-left"></i> Back to List
+            </a>
+            @if (canEdit)
+            {
+                <a href="@Url.Action("Edit","Booking", new { id = Model.Id })" class="btn btn-brand">
+                    <i class="fa fa-pen"></i> Edit
+                </a>
+            }
+        </div>
     </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
+    <div class="card shadow-sm border-0 rounded-4">
+        <!-- Brown header like Feedback Details -->
+        <div class="card-header text-white py-3" style="background:#8e4433;">
+            <div class="d-flex flex-wrap justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-light text-dark fw-semibold">Tour</span>
+                    <h4 class="mb-0">
+                        @if (Model.Tour != null)
+                        {
+                            <a href="@Url.Action("Details","Tour", new { id = Model.Tour.Id })"
+                               class="text-white text-decoration-underline">
+                                @tourTitle
+                            </a>
+                        }
+                        else
+                        { @tourTitle}
+                    </h4>
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge @statusClass px-3 py-2 text-uppercase" style="letter-spacing:.03em;">
+                        @(string.IsNullOrWhiteSpace(Model.Status) ? "—" : Model.Status)
+                    </span>
+                    <span class="badge bg-light text-dark fw-semibold">
+                        Total: @totalStr
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
             <div class="row g-4">
-                <div class="col-md-6">
-                    <div class="text-muted small mb-1">Tour</div>
-                    <div class="fw-semibold">@((Model.Tour != null) ? Model.Tour.Title : "—")</div>
+                <div class="col-lg-6">
+                    <div class="mb-3">
+                        <div class="text-muted small mb-1">Tourist</div>
+                        <div class="fw-semibold">@touristName</div>
+                    </div>
                 </div>
 
-                <div class="col-md-6">
-                    <div class="text-muted small mb-1">Tourist</div>
-                    <div class="fw-semibold">@((Model.Tourist != null) ? Model.Tourist.FullName : "—")</div>
+                <div class="col-lg-6">
+                    <div class="mb-3">
+                        <div class="text-muted small mb-1">Booking Date</div>
+                        <div class="fw-semibold">@dateStr</div>
+                    </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="text-muted small mb-1">Booking Date</div>
-                    <div class="fw-semibold">@Model.BookingDate.ToString("yyyy-MM-dd")</div>
+                <div class="col-lg-6">
+                    <div class="mb-3">
+                        <div class="text-muted small mb-1">People</div>
+                        <div class="fw-semibold">@Model.NumberOfPeople</div>
+                    </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="text-muted small mb-1">People</div>
-                    <div class="fw-semibold">@Model.NumberOfPeople</div>
+                <div class="col-lg-6">
+                    <div class="mb-3">
+                        <div class="text-muted small mb-1">Tour Price × People</div>
+                        <div class="fw-semibold">@totalStr</div>
+                    </div>
                 </div>
 
-                <div class="col-md-4">
-                    <div class="text-muted small mb-1">Total Price</div>
-                    <div class="fw-semibold">@String.Format("{0:C}", Model.TotalPrice)</div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="text-muted small mb-1">Status</div>
-                    <span class="badge @statusClass">@(!string.IsNullOrWhiteSpace(Model.Status) ? Model.Status : "—")</span>
-                </div>
-
-                <div class="col-md-12">
-                    <div class="text-muted small mb-1">Special Requests</div>
-                    <div class="fw-semibold">@(!string.IsNullOrWhiteSpace(Model.SpecialRequests) ? Model.SpecialRequests : "—")</div>
+                <div class="col-12">
+                    <div class="text-muted small mb-2">Special Requests</div>
+                    <div class="comment-box">
+                        @if (!string.IsNullOrWhiteSpace(Model.SpecialRequests))
+                        {
+                            @Html.Raw(HttpUtility.HtmlEncode(Model.SpecialRequests).Replace("\n", "<br/>"))
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="card-footer d-flex justify-content-end gap-2">
-            <a href="@Url.Action("Edit","Booking", new { id = Model.Id })" class="btn btn-brand">
-                <i class="fa fa-pen"></i> Edit
-            </a>
             <a href="@Url.Action("Index","Booking")" class="btn btn-outline-secondary">
-                Back to List
+                <i class="fa fa-list"></i> Back to List
             </a>
+            @if (canEdit)
+            {
+                <a href="@Url.Action("Edit","Booking", new { id = Model.Id })" class="btn btn-brand">
+                    <i class="fa fa-pen"></i> Edit
+                </a>
+            }
         </div>
     </div>
 </div>
 
 <style>
     .btn-brand {
-        background: #8e4433;
+        background-color: #8e4433;
         color: #fff;
-        border: 0
+        border: 0;
     }
 
         .btn-brand:hover {
-            background: #6b3025;
-            color: #fff
+            background-color: #6b3025;
+            color: #fff;
         }
+
+    .comment-box {
+        background: #f8f2f0;
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        border-left: 5px solid #8e4433;
+        color: #000;
+    }
 </style>

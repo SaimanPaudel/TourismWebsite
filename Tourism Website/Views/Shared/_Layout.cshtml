@@ -1,9 +1,18 @@
 ﻿@{
     Layout = null;
-    string currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
-    string currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
     var userRole = (Session["UserRole"] as string) ?? "";
     var userName = User.Identity.IsAuthenticated ? (Session["UserName"] as string ?? User.Identity.Name) : "";
+
+    bool isAdmin = userRole == "Admin";
+    bool isAgency = userRole == "Agency";
+    bool isGuide = userRole == "Guide";
+    bool canManage = isAdmin || isAgency || isGuide;
+
+    Func<string, string, bool> isActive = (ctrl, act) =>
+        string.Equals(currentController, ctrl, StringComparison.OrdinalIgnoreCase) &&
+        (string.IsNullOrEmpty(act) || string.Equals(currentAction, act, StringComparison.OrdinalIgnoreCase));
 }
 
 <!DOCTYPE html>
@@ -14,10 +23,9 @@
     <title>@ViewBag.Title - Tourism Website</title>
 
     <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
     @Styles.Render("~/Content/css")
     <link rel="stylesheet" href="~/Content/css/tours.css" />
@@ -28,22 +36,70 @@
         :root {
             --brand: #8e4433;
             --brand-dark: #6b3025;
+            --brand-50: #a35a4b;
         }
 
         html {
             scroll-behavior: smooth;
         }
 
-        .navbar-brand, .nav-link, .navbar-text {
-            color: #fff !important;
-        }
-
+        /* ===== NAVBAR ===== */
         .navbar {
-            background-color: var(--brand);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            background: linear-gradient(180deg, var(--brand) 0%, var(--brand-50) 120%);
+            border-bottom: 1px solid rgba(255,255,255,.15);
         }
 
-        .nav-link.active, .nav-link:hover {
-            opacity: .9;
+            .navbar .navbar-brand {
+                color: #fff;
+                font-weight: 800;
+                letter-spacing: .2px;
+            }
+
+            .navbar .nav-link {
+                color: rgba(255,255,255,.95) !important;
+                position: relative;
+                padding-left: .75rem;
+                padding-right: .75rem;
+            }
+
+                .navbar .nav-link::after {
+                    content: "";
+                    position: absolute;
+                    left: .75rem;
+                    right: .75rem;
+                    bottom: .25rem;
+                    height: 2px;
+                    background: #fff;
+                    opacity: 0;
+                    transform: scaleX(0);
+                    transition: transform .25s ease, opacity .25s ease;
+                }
+
+                .navbar .nav-link:hover::after {
+                    opacity: .75;
+                    transform: scaleX(1);
+                }
+
+                .navbar .nav-link.active,
+                .navbar .show > .nav-link {
+                    background: rgba(255,255,255,.12);
+                    border-radius: .5rem;
+                }
+
+        .dropdown-menu {
+            border: 0;
+            box-shadow: 0 12px 24px rgba(0,0,0,.15);
+        }
+
+        .btn-outline-light {
+            --bs-btn-color: #fff;
+            --bs-btn-border-color: rgba(255,255,255,.65);
+            --bs-btn-hover-bg: #fff;
+            --bs-btn-hover-color: var(--brand);
+            --bs-btn-hover-border-color: #fff;
         }
 
         .btn-brand {
@@ -58,7 +114,7 @@
             }
 
         footer {
-            background-color: var(--brand);
+            background: var(--brand);
             color: #fff;
         }
     </style>
@@ -66,7 +122,7 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
         <div class="container">
-            @Html.ActionLink("Tourism Website", "Index", "Home", null, new { @class = "navbar-brand fw-bold" })
+            @Html.ActionLink("Tourism Website", "Index", "Home", null, new { @class = "navbar-brand" })
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar"
                     aria-controls="topNavbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,86 +130,110 @@
             </button>
 
             <div class="collapse navbar-collapse" id="topNavbar">
+                <!-- Left: Main navigation -->
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
                     <li class="nav-item">
-                        @Html.ActionLink("Home", "Index", "Home", null,
-                            new { @class = "nav-link " + (currentController == "Home" && currentAction == "Index" ? "active" : "") })
+                        <a class="nav-link @(isActive("Home","Index") ? "active" : "")"
+                           href="@Url.Action("Index","Home")">
+                            <i class="fa fa-house"></i> Home
+                        </a>
                     </li>
 
                     <li class="nav-item">
-                        @Html.ActionLink("About", "About", "Home", null,
-                            new { @class = "nav-link " + (currentController == "Home" && currentAction == "About" ? "active" : "") })
+                        <a class="nav-link @(currentController.Equals("Tour", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                           href="@Url.Action("Index","Tour")">
+                            <i class="fa fa-map-location-dot"></i> Tours
+                        </a>
                     </li>
 
                     <li class="nav-item">
-                        @Html.ActionLink("Tours", "Index", "Tour", null,
-                            new { @class = "nav-link " + (currentController == "Tour" ? "active" : "") })
+                        <a class="nav-link @(currentController.Equals("Booking", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                           href="@Url.Action("Index","Booking")">
+                            <i class="fa fa-ticket"></i> Bookings
+                        </a>
                     </li>
 
                     <li class="nav-item">
-                        @Html.ActionLink("Booking", "Index", "Booking", null,
-                            new { @class = "nav-link " + (currentController == "Booking" ? "active" : "") })
+                        <a class="nav-link @(currentController.Equals("Feedback", StringComparison.OrdinalIgnoreCase) ? "active" : "")"
+                           href="@Url.Action("Index","Feedback")">
+                            <i class="fa fa-comments"></i> Feedback
+                        </a>
                     </li>
 
-                    <!-- Admin only -->
-                    @if (userRole == "Admin")
+                    <!-- Manage dropdown (Admin/Agency/Guide) -->
+                    @if (canManage)
                     {
-                        <li class="nav-item">
-                            @Html.ActionLink("Manage Users", "Index", "User", null,
-                                new { @class = "nav-link " + (currentController == "User" ? "active" : "") })
-                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle @( (currentController=="Tour" && currentAction=="Index") || currentController=="User" || currentController=="Admin" ? "active" : "" )"
+                               href="#" id="manageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa fa-screwdriver-wrench"></i> Manage
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="manageDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="@Url.Action("Index","Tour")">
+                                        <i class="fa fa-route me-2"></i> Manage Tours
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="@Url.Action("Index","Booking")">
+                                        <i class="fa fa-clipboard-list me-2"></i> Manage Bookings
+                                    </a>
+                                </li>
 
-                        <li class="nav-item">
-                            @Html.ActionLink("Role Requests", "PendingRoleRequests", "Admin", null,
-                                new { @class = "nav-link " + (currentController == "Admin" && currentAction == "PendingRoleRequests" ? "active" : "") })
+                                @if (isAdmin)
+                                {
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("Index","User")">
+                                            <i class="fa fa-users-gear me-2"></i> Manage Users
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action("PendingRoleRequests","Admin")">
+                                            <i class="fa fa-id-badge me-2"></i> Role Requests
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
                         </li>
                     }
 
-                    <!-- Manage Tours: Admin, Agency, Guide -->
-                    @if (userRole == "Admin" || userRole == "Agency" || userRole == "Guide")
-                    {
-                        <li class="nav-item">
-                            @Html.ActionLink("Manage Tours", "Index", "Tour", null,
-                                new { @class = "nav-link " + (currentController == "Tour" && currentAction == "Index" ? "active" : "") })
-                        </li>
-                    }
-
-                    <!-- Manage Bookings: Admin, Agency, Guide -->
-                    @if (userRole == "Admin" || userRole == "Agency" || userRole == "Guide")
-                    {
-                        <li class="nav-item">
-                            @Html.ActionLink("Manage Bookings", "Index", "Booking", null,
-                                new { @class = "nav-link " + (currentController == "Booking" ? "active" : "") })
-                        </li>
-                    }
-
-                    <!-- Feedback visible to all -->
+                    <!-- Keep About & Contact at the END -->
                     <li class="nav-item">
-                        @Html.ActionLink("Feedback", "Index", "Feedback", null,
-                            new { @class = "nav-link " + (currentController == "Feedback" ? "active" : "") })
+                        <a class="nav-link @(isActive("Home","About") ? "active" : "")"
+                           href="@Url.Action("About","Home")">
+                            <i class="fa fa-circle-info"></i> About
+                        </a>
                     </li>
 
                     <li class="nav-item">
-                        @Html.ActionLink("Contact", "Contact", "Home", null,
-                            new { @class = "nav-link " + (currentController == "Home" && currentAction == "Contact" ? "active" : "") })
+                        <a class="nav-link @(isActive("Home","Contact") ? "active" : "")"
+                           href="@Url.Action("Contact","Home")">
+                            <i class="fa fa-envelope"></i> Contact
+                        </a>
                     </li>
                 </ul>
 
+                <!-- Right: Auth -->
                 <ul class="navbar-nav ms-auto">
                     @if (User.Identity.IsAuthenticated)
                     {
                         <li class="nav-item">
-                            <span class="navbar-text me-3">Hello, @userName</span>
+                            <span class="navbar-text me-2"><i class="fa fa-user"></i> Hello, @userName</span>
                         </li>
                         <li class="nav-item">
-                            @Html.ActionLink("Logout", "Logout", "Account", null, new { @class = "btn btn-outline-light" })
+                            <a class="btn btn-sm btn-outline-light" href="@Url.Action("Logout","Account")">
+                                <i class="fa fa-right-from-bracket"></i> Logout
+                            </a>
                         </li>
                     }
                     else
                     {
                         <li class="nav-item">
-                            @Html.ActionLink("Login", "Login", "Account", null, new { @class = "btn btn-outline-light" })
+                            <a class="btn btn-sm btn-outline-light" href="@Url.Action("Login","Account")">
+                                <i class="fa fa-right-to-bracket"></i> Login
+                            </a>
                         </li>
                     }
                 </ul>
@@ -173,7 +253,7 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     @RenderSection("scripts", required: false)
 </body>
