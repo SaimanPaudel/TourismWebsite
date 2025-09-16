@@ -19,10 +19,11 @@ namespace Tourism_Website.Controllers
         private bool IsGuide => Role == "Guide";
         private bool CanManage => IsAdmin || IsAgency || IsGuide;
 
-        // Small helper to map string userId -> FullName
+        // Helper: map string UserId -> FullName (or null)
         private string GetUserNameByStringId(string sid)
         {
             if (string.IsNullOrWhiteSpace(sid)) return null;
+
             return db.Users
                      .Where(u => u.UserId.ToString() == sid)
                      .Select(u => u.FullName)
@@ -54,19 +55,32 @@ namespace Tourism_Website.Controllers
 
             var tours = query.AsNoTracking().ToList();
 
-            // Build a tourId -> host name map (Guide takes precedence, else Creator)
-            var users = db.Users
-                          .Select(u => new { u.UserId, u.FullName })
-                          .ToList()
-                          .ToDictionary(x => x.UserId.ToString(), x => x.FullName);
+            // Build user map userId(string) -> FullName for host names
+            var userMap = db.Users
+                            .Select(u => new { u.UserId, u.FullName })
+                            .ToList()
+                            .ToDictionary(x => x.UserId.ToString(), x => x.FullName);
 
+            // Provide a tourId -> host name dictionary to the view
             ViewBag.HostNames = tours.ToDictionary(
                 t => t.Id,
                 t =>
-                    (!string.IsNullOrEmpty(t.GuideId) && users.ContainsKey(t.GuideId))
-                        ? users[t.GuideId]
-                        : (users.ContainsKey(t.CreatedByUserId) ? users[t.CreatedByUserId] : "—")
-            );
+                {
+                    string name = null;
+
+                    if (!string.IsNullOrEmpty(t.GuideId) &&
+                        userMap.TryGetValue(t.GuideId, out var gName))
+                    {
+                        name = gName;
+                    }
+                    else if (!string.IsNullOrEmpty(t.CreatedByUserId) &&
+                             userMap.TryGetValue(t.CreatedByUserId, out var cName))
+                    {
+                        name = cName;
+                    }
+
+                    return string.IsNullOrWhiteSpace(name) ? "—" : name;
+                });
 
             return View(tours);
         }
@@ -82,9 +96,14 @@ namespace Tourism_Website.Controllers
             var creatorName = GetUserNameByStringId(tour.CreatedByUserId);
             var guideName = GetUserNameByStringId(tour.GuideId);
 
-            ViewBag.HostedBy = guideName ?? creatorName;
-            ViewBag.CreatorName = creatorName;
-            ViewBag.GuideName = guideName;
+            var host = !string.IsNullOrWhiteSpace(guideName) ? guideName : creatorName;
+            var hostedBy = string.IsNullOrWhiteSpace(host) ? "—" : host;
+
+            // Expose for the view
+            ViewBag.HostedBy = hostedBy; // preferred
+            ViewBag.HostName = hostedBy; // legacy support if view uses HostName
+            ViewBag.CreatorName = string.IsNullOrWhiteSpace(creatorName) ? "—" : creatorName;
+            ViewBag.GuideName = string.IsNullOrWhiteSpace(guideName) ? "—" : guideName;
 
             return View(tour);
         }
@@ -99,27 +118,23 @@ namespace Tourism_Website.Controllers
         // POST: Tour/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include =
-            "Title,Destination,Description,Price,DurationDays,ImagePath")] Tour tour)
+        public ActionResult Create([Bind(Include = "Title,Destination,Description,Price,DurationDays,ImagePath")] Tour tour)
         {
             if (!CanManage) return new HttpUnauthorizedResult();
 
-            if (ModelState.IsValid)
-            {
-                tour.CreatedAt = DateTime.UtcNow;
-                tour.CreatedByUserId = CurrentUserId; // who created it
+            if (!ModelState.IsValid)
+                return View(tour);
 
-                // If a Guide creates it, also mark them as the assigned guide
-                if (IsGuide)
-                {
-                    tour.GuideId = CurrentUserId;
-                }
+            tour.CreatedAt = DateTime.UtcNow;
+            tour.CreatedByUserId = CurrentUserId;
 
-                db.Tours.Add(tour);
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(tour);
+            // If a Guide creates the tour, assign themselves as the guide
+            if (IsGuide)
+                tour.GuideId = CurrentUserId;
+
+            db.Tours.Add(tour);
+            db.SaveChanges();
+            return RedirectToAction("Index");
         }
 
         // GET: Tour/Edit/5
@@ -131,7 +146,7 @@ namespace Tourism_Website.Controllers
             var tour = db.Tours.Find(id);
             if (tour == null) return HttpNotFound();
 
-            // Agency must own; Guide must own OR be assigned as GuideId
+            // Agency must own; Guide must own OR be assigned
             if (IsAgency && tour.CreatedByUserId != CurrentUserId) return new HttpUnauthorizedResult();
             if (IsGuide && !(tour.CreatedByUserId == CurrentUserId || tour.GuideId == CurrentUserId))
                 return new HttpUnauthorizedResult();
@@ -142,11 +157,12 @@ namespace Tourism_Website.Controllers
         // POST: Tour/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include =
-            "Id,Title,Destination,Description,Price,DurationDays,ImagePath")] Tour tour)
+        public ActionResult Edit([Bind(Include = "Id,Title,Destination,Description,Price,DurationDays,ImagePath")] Tour tour)
         {
             if (!CanManage) return new HttpUnauthorizedResult();
-            if (!ModelState.IsValid) return View(tour);
+
+            if (!ModelState.IsValid)
+                return View(tour);
 
             var existing = db.Tours.Find(tour.Id);
             if (existing == null) return HttpNotFound();

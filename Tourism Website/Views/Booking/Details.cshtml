@@ -7,12 +7,6 @@
                    : status == "pending" ? "bg-warning text-dark"
                    : status == "cancelled" ? "bg-danger text-white"
                    : "bg-secondary text-white";
-
-    var userRole = (Session["UserRole"] as string) ?? "";
-    var userIdStr = (Session["UserId"]?.ToString()) ?? "";
-    int userIdInt;
-    var isOwner = int.TryParse(userIdStr, out userIdInt) && userIdInt == Model.TouristId;
-    var canManage = userRole == "Admin" || userRole == "Agency" || userRole == "Guide";
 }
 
 <div class="container px-0">
@@ -25,15 +19,15 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <div class="row g-3">
+            <div class="row g-4">
                 <div class="col-md-6">
                     <div class="text-muted small mb-1">Tour</div>
-                    <div class="fw-semibold">@Model.Tour?.Title</div>
+                    <div class="fw-semibold">@((Model.Tour != null) ? Model.Tour.Title : "—")</div>
                 </div>
 
                 <div class="col-md-6">
                     <div class="text-muted small mb-1">Tourist</div>
-                    <div class="fw-semibold">@Model.Tourist?.FullName</div>
+                    <div class="fw-semibold">@((Model.Tourist != null) ? Model.Tourist.FullName : "—")</div>
                 </div>
 
                 <div class="col-md-4">
@@ -53,7 +47,7 @@
 
                 <div class="col-md-6">
                     <div class="text-muted small mb-1">Status</div>
-                    <span class="badge @statusClass">@Model.Status</span>
+                    <span class="badge @statusClass">@(!string.IsNullOrWhiteSpace(Model.Status) ? Model.Status : "—")</span>
                 </div>
 
                 <div class="col-md-12">
@@ -64,12 +58,9 @@
         </div>
 
         <div class="card-footer d-flex justify-content-end gap-2">
-            @if (canManage || isOwner)
-            {
-                <a href="@Url.Action("Edit","Booking", new { id = Model.Id })" class="btn btn-brand">
-                    <i class="fa fa-pen"></i> Edit
-                </a>
-            }
+            <a href="@Url.Action("Edit","Booking", new { id = Model.Id })" class="btn btn-brand">
+                <i class="fa fa-pen"></i> Edit
+            </a>
             <a href="@Url.Action("Index","Booking")" class="btn btn-outline-secondary">
                 Back to List
             </a>
@@ -79,13 +70,13 @@
 
 <style>
     .btn-brand {
-        background-color: #8e4433;
+        background: #8e4433;
         color: #fff;
-        border: 0;
+        border: 0
     }
 
         .btn-brand:hover {
-            background-color: #6b3025;
-            color: #fff;
+            background: #6b3025;
+            color: #fff
         }
 </style>

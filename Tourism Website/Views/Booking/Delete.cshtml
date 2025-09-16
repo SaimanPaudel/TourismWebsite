@@ -27,12 +27,12 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <div class="text-muted small mb-1">Tour</div>
-                    <div class="fw-semibold">@Model.Tour?.Title</div>
+                    <div class="fw-semibold">@((Model.Tour != null) ? Model.Tour.Title : "—")</div>
                 </div>
 
                 <div class="col-md-6">
                     <div class="text-muted small mb-1">Tourist</div>
-                    <div class="fw-semibold">@Model.Tourist?.FullName</div>
+                    <div class="fw-semibold">@((Model.Tourist != null) ? Model.Tourist.FullName : "—")</div>
                 </div>
 
                 <div class="col-md-4">
@@ -52,7 +52,7 @@
 
                 <div class="col-md-6">
                     <div class="text-muted small mb-1">Status</div>
-                    <span class="badge @statusClass">@Model.Status</span>
+                    <span class="badge @statusClass">@(!string.IsNullOrWhiteSpace(Model.Status) ? Model.Status : "—")</span>
                 </div>
 
                 <div class="col-md-12">
@@ -66,7 +66,7 @@
             @using (Html.BeginForm())
             {
                 @Html.AntiForgeryToken()
-                @Html.HiddenFor(m => m.Id) <!-- ensure id posts correctly -->
+                @Html.HiddenFor(m => m.Id)
 
                 <button type="submit" class="btn btn-danger">
                     <i class="fa fa-trash"></i> Delete
@@ -81,13 +81,13 @@
 
 <style>
     .btn-brand {
-        background-color: #8e4433;
+        background: #8e4433;
         color: #fff;
-        border: 0;
+        border: 0
     }
 
         .btn-brand:hover {
-            background-color: #6b3025;
-            color: #fff;
+            background: #6b3025;
+            color: #fff
         }
 </style>

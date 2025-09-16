@@ -13,8 +13,8 @@
         (isAgency && Model.CreatedByUserId == uid) ||
         (isGuide && (Model.CreatedByUserId == uid || Model.GuideId == uid));
 
-    // Host name prepared in controller: guide name if set, else creator/agency name
-    var hostName = (ViewBag.HostName as string) ?? "—";
+    // Accept either ViewBag.HostedBy (recommended) or legacy ViewBag.HostName
+    var hostName = (ViewBag.HostedBy as string) ?? (ViewBag.HostName as string) ?? "—";
 }
 
 <div class="container mt-4">
@@ -128,13 +128,9 @@
         background-color: #8e4433 !important;
     }
 
-        .book-btn:hover {
+        .book-btn:hover, .login-book-btn:hover {
             background-color: green !important;
         }
-
-    .login-book-btn:hover {
-        background-color: green !important;
-    }
 
     .feedback-view-btn:hover {
         background-color: #5c6bc0 !important;

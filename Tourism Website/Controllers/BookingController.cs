@@ -12,7 +12,7 @@ namespace Tourism_Website.Controllers
     {
         private readonly Tourism_WebsiteContext db = new Tourism_WebsiteContext();
 
-        // Helpers
+        // Session helpers
         private string Role => Session["UserRole"]?.ToString() ?? "";
         private int? UserIdInt => int.TryParse(Session["UserId"]?.ToString(), out var x) ? (int?)x : null;
         private bool IsLoggedIn => !string.IsNullOrEmpty(Role) && UserIdInt.HasValue;
@@ -25,13 +25,12 @@ namespace Tourism_Website.Controllers
                 db.Tours.OrderBy(t => t.Title).ToList(),
                 "Id", "Title", booking?.TourId);
 
-            // Tourists dropdown (only Tourist role)
+            // Only users with Tourist role for the TouristId field
             var touristUsers = db.Users
                 .Where(u => u.Role == "Tourist")
                 .OrderBy(u => u.FullName)
                 .ToList();
 
-            // IMPORTANT: View expects TouristId
             ViewBag.TouristId = new SelectList(
                 touristUsers, "UserId", "FullName", booking?.TouristId);
         }
@@ -41,9 +40,11 @@ namespace Tourism_Website.Controllers
         {
             if (!IsLoggedIn) return RedirectToAction("Login", "Account");
 
-            IQueryable<Booking> bookings = db.Bookings
+            var bookings = db.Bookings
+                .AsNoTracking()
                 .Include(b => b.Tour)
-                .Include(b => b.Tourist);
+                .Include(b => b.Tourist)
+                .AsQueryable();
 
             switch (Role)
             {
@@ -121,7 +122,7 @@ namespace Tourism_Website.Controllers
 
             if (booking == null) return HttpNotFound();
 
-            // Optional: scope Agency/Guide to only their tours
+            // Scope Agency/Guide to only their tours
             if (Role == "Agency")
             {
                 var uid = Session["UserId"]?.ToString();
@@ -142,14 +143,16 @@ namespace Tourism_Website.Controllers
         // POST: Booking/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,TourId,TouristId,BookingDate,NumberOfPeople,TotalPrice,Status,SpecialRequests")] Booking posted)
+        public ActionResult Edit([Bind(Include = "Id,TourId,TouristId,BookingDate,NumberOfPeople,Status,SpecialRequests")] Booking posted)
         {
             if (!CanManage) return new HttpUnauthorizedResult();
 
-            var existing = db.Bookings.Find(posted.Id);
+            var existing = db.Bookings
+                .Include(b => b.Tour)
+                .FirstOrDefault(b => b.Id == posted.Id);
             if (existing == null) return HttpNotFound();
 
-            // Optional: scope Agency/Guide to only their tours on the existing record
+            // Scope Agency/Guide to only their tours on the EXISTING record
             if (Role == "Agency")
             {
                 var uid = Session["UserId"]?.ToString();
@@ -167,7 +170,7 @@ namespace Tourism_Website.Controllers
             {
                 // Update allowed fields
                 existing.TourId = posted.TourId;
-                existing.TouristId = posted.TouristId; // remove if you don't want to reassign owner
+                existing.TouristId = posted.TouristId; // keep if you want Admin/Agency/Guide to reassign owner
                 existing.BookingDate = posted.BookingDate;
                 existing.NumberOfPeople = posted.NumberOfPeople;
                 existing.Status = posted.Status;
@@ -185,7 +188,7 @@ namespace Tourism_Website.Controllers
                 return RedirectToAction("Index");
             }
 
-            // IMPORTANT: repopulate dropdowns when returning the view
+            // Repopulate dropdowns when returning the view
             PopulateEditSelects(posted);
             return View(existing);
         }
@@ -203,7 +206,7 @@ namespace Tourism_Website.Controllers
 
             if (booking == null) return HttpNotFound();
 
-            // Optional scope: same as Edit
+            // Scope checks
             if (Role == "Agency")
             {
                 var uid = Session["UserId"]?.ToString();
@@ -230,7 +233,7 @@ namespace Tourism_Website.Controllers
             var booking = db.Bookings.Find(id);
             if (booking == null) return HttpNotFound();
 
-            // Optional scope: same as Edit
+            // Scope checks
             if (Role == "Agency")
             {
                 var uid = Session["UserId"]?.ToString();
@@ -271,7 +274,7 @@ namespace Tourism_Website.Controllers
                 var tour = db.Tours.Find(tourId.Value);
                 if (tour != null)
                 {
-                    booking.TotalPrice = tour.Price;
+                    booking.TotalPrice = tour.Price; // will be multiplied on POST by NumberOfPeople
                 }
             }
 
@@ -284,7 +287,7 @@ namespace Tourism_Website.Controllers
         // POST: Booking/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,TourId,TouristId,BookingDate,NumberOfPeople,TotalPrice,Status,SpecialRequests")] Booking booking)
+        public ActionResult Create([Bind(Include = "Id,TourId,BookingDate,NumberOfPeople,Status,SpecialRequests")] Booking booking)
         {
             if (!IsLoggedIn) return RedirectToAction("Login", "Account");
 
@@ -294,7 +297,9 @@ namespace Tourism_Website.Controllers
                 if (tour != null)
                     booking.TotalPrice = tour.Price * booking.NumberOfPeople;
 
+                // Always set to the logged-in user; ignore any posted TouristId
                 booking.TouristId = UserIdInt.Value;
+
                 db.Bookings.Add(booking);
                 db.SaveChanges();
                 TempData["SuccessMessage"] = "Booking created.";

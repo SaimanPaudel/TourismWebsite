@@ -4,6 +4,7 @@ using System.Web.Mvc;
 using System.Web.Security;
 using Tourism_Website.Data;
 using Tourism_Website.Models;
+using Tourism_Website.Security; // <-- make sure you added Security/PasswordHashing.cs
 
 namespace Tourism_Website.Controllers
 {
@@ -36,12 +37,12 @@ namespace Tourism_Website.Controllers
             // Normalize role input (fallback to Tourist)
             var requested = (model.Role ?? "Tourist").Trim();
 
-            // Always create users with a safe, effective Role (Tourist) first.
+            // Create user with HASHED password
             var user = new User
             {
                 FullName = model.FullName,
                 Email = model.Email,
-                Password = model.Password, // TODO: Hash in production
+                Password = PasswordHashing.Hash(model.Password), // <-- hashed
                 Role = "Tourist",
                 RequestedRole = null,
                 IsRoleApproved = null
@@ -54,7 +55,6 @@ namespace Tourism_Website.Controllers
                 user.RequestedRole = requested;    // "Agency" or "Guide"
                 user.IsRoleApproved = null;        // pending
             }
-            // If they selected Admin (shouldn't be in UI), ignore and keep Tourist.
 
             try
             {
@@ -96,30 +96,50 @@ namespace Tourism_Website.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            // NOTE: In production, compare hashed passwords
-            var user = db.Users.FirstOrDefault(u => u.Email == model.Email && u.Password == model.Password);
+            // Look up user by email only
+            var user = db.Users.FirstOrDefault(u => u.Email == model.Email);
             if (user == null)
             {
                 ModelState.AddModelError("", "Invalid email or password");
                 return View(model);
             }
 
-            // If you want to BLOCK login for people with pending Agency/Guide requests, uncomment this:
-            // if (user.RequestedRole != null && user.IsRoleApproved == null)
-            // {
-            //     ModelState.AddModelError("", $"Your {user.RequestedRole} request is pending admin approval.");
-            //     return View(model);
-            // }
+            // Verify password (supports legacy plaintext and new hashed)
+            bool ok, needsUpgrade;
+
+            if (PasswordHashing.IsFormattedHash(user.Password))
+            {
+                ok = PasswordHashing.Verify(model.Password, user.Password, out needsUpgrade);
+            }
+            else
+            {
+                // Legacy plaintext row: compare directly once, then upgrade on success
+                ok = string.Equals(model.Password, user.Password);
+                needsUpgrade = ok; // upgrade immediately if login succeeds
+            }
+
+            if (!ok)
+            {
+                ModelState.AddModelError("", "Invalid email or password");
+                return View(model);
+            }
+
+            // Transparent upgrade for legacy/weak hashes
+            if (needsUpgrade || !PasswordHashing.IsFormattedHash(user.Password))
+            {
+                user.Password = PasswordHashing.Hash(model.Password);
+                db.SaveChanges();
+            }
 
             // Set auth cookie
             FormsAuthentication.SetAuthCookie(user.Email, false);
 
             // Set session with the EFFECTIVE role
             Session["UserId"] = user.UserId;
-            Session["UserRole"] = user.Role;          // "Tourist" unless approved to Agency/Guide/Admin
-            Session["UserName"] = user.FullName;      // optional, handy for UI
+            Session["UserRole"] = user.Role;     // "Tourist" unless approved to Agency/Guide/Admin
+            Session["UserName"] = user.FullName; // handy for UI
 
-            // Informational banners about request status
+            // Info banners about request status
             if (user.RequestedRole != null && user.IsRoleApproved == null)
             {
                 TempData["Info"] = $"Your request to become {user.RequestedRole} is pending admin approval. You currently have Tourist access.";
